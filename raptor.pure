@@ -16,6 +16,9 @@ public note min_note max_note min_vel max_vel base scale vel_bias
 
 public raptor;
 
+extern void pd_error_s(char *s);
+extern expr *pd_getdir();
+
 namespace raptor;
 
 /* Presets for testing and documentation purposes. */
@@ -741,8 +744,9 @@ read_preset id x::string =
 when
   y = last $ split "/" x; y:_ = split "." y;
 end if pointerp fp && listp data
-when path = split "/" x; name = last path;
+when path = split "/" x; root = head path; name = last path;
   x = if index name "." >= 0 then x else x+".raptor";
+  x = if null root then x else pd_getdir+"/"+x;
   fp = fopen x "r"; data = val $ fget fp;
 end with
   /* Quick hack to ignore the hold flags which are stored in presets but
@@ -781,8 +785,9 @@ flip fputs fp $ str
 when
   y = last $ split "/" x; y:_ = split "." y;
 end if pointerp fp
-when path = split "/" x; name = last path;
+when path = split "/" x; root = head path; name = last path;
   x = if index name "." >= 0 then x else x+".raptor";
+  x = if null root then x else pd_getdir+"/"+x;
   fp = fopen x "w";
 end;
 
@@ -972,10 +977,14 @@ process (ctl7 x::double)
 process (load_preset x::string)
 		= smatrix (map (1,) x)
 		  if listp x when x = read_preset id x end;
+process (load_preset x)
+		= pd_error_s $ sprintf "raptor: error reading %s" (str x);
 
-process (save_preset X:String)
+process (save_preset x::string)
 		= smatrix (map (1,) x)
 		  if listp x when x = write_preset id x end;
+process (save_preset x)
+		= pd_error_s $ sprintf "raptor: error writing %s" (str x);
 
 /* Start and stop note generation. */
 
