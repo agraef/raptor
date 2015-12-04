@@ -1,0 +1,9 @@
+
+/* Helper object to create a Pd symbol from a Raptor id and a message
+   selector. */
+
+using system;
+
+mksym id f::string
+		= sprintf "%d-%s" (id,f);
+mksym id f	= sprintf "%d-%s" (id,join "-" (split "_" $ str f));

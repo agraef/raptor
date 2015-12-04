@@ -1,0 +1,12 @@
+
+/* Helper object to convert ticks to actual time in msecs. */
+
+public ticks2ms;
+
+namespace raptor;
+private getref DIVISION NPULSES TEMPO TIMEBASE;
+
+::ticks2ms id x = 60000/getref id TEMPO*getref id TIMEBASE/getref id NPULSES/
+      getref id DIVISION*x;
+
+namespace;

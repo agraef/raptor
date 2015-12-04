@@ -1,0 +1,1038 @@
+
+/* raptor.pure: the random arpeggiator (Pd version) */
+
+using dict, math, system;
+using hrm, indisp;
+
+nonfix start stop reset bang;
+public note min_note max_note min_vel max_vel base scale vel_bias
+  min_dur max_dur dur_bias quant_mode delta dur_vals min_shift max_shift
+  shift_bias min_step max_step step_bias min_prob max_prob prob_bias
+  max_notes max_notes_bias meter upbeat tempo timebase division pulses
+  step_mode metronome ostinato period min_harm max_harm harm_bias
+  pref pref_bias trace limit unique mute pitch_tracker vel_tracker
+  arg1 arg2 arg3 arg4 in_chan out_chan ctl1 ctl2 ctl3 ctl4 ctl5 ctl6 ctl7
+  preset_file preset_name hold load_preset save_preset tick ignore;
+
+public raptor;
+
+namespace raptor;
+
+/* Presets for testing and documentation purposes. */
+
+let HARMS = ["Barlow","Barlow/2","Euler","Euler/2"];
+
+let METERS =
+  [[2],[2,2],[2,2,2], [2,2,2,2],
+   [3],[2,3],[3,2],[3,2,2],[2,3,2],[2,2,3],[3,3,2],[3,2,3],[2,3,3],
+   [5],[2,5],[5,2],[5,2,2],[2,5,2],[2,2,5],[5,5,2],[5,2,5],[2,5,5],
+   [7],[2,7],[7,2],[7,2,2],[2,7,2],[2,2,7],[7,7,2],[7,2,7],[2,7,7]];
+
+let PULSE_FILTERS =
+  [(0, []),		// all pulses
+   (2, [1]),		// upbeats only (2-based meter)
+   (2, [0]),		// downbeats only (2-based meter)
+   (3, [1]),		// shuffle #1 ([...,3] meter)
+   (6, [2,3]),		// shuffle #2 ([...,3,2] meter)
+   (12,[4..7]),		// shuffle #3 ([...,3,2,2] meter)
+   (5, [1,3]),		// 5-based shuffle
+   (7, [1,3,5])];	// 7-based shuffle
+
+let STEP_MODES =
+  ["Random","Up","Down","Up-Down","Down-Up"];
+
+let SCALES =
+  [(0, []),		// 12-tone
+   (12,[1,3,6,8,10]),	// major
+   (12,[1,4,6,9,11]),	// natural minor
+   (12,[1,4,6,9,10]),	// harmonic minor
+   (12,[1,4,6,8,10]),	// melodic minor
+   (2, [1])];		// whole tone
+
+let DURATIONS =		// presets for the dur_vals field
+  [[],map (*24) (1..8),
+   map (*48) [1,2,4,8], [24]];
+
+/* We maintain distinct sets of control parameters for different Raptors.
+   Each Raptor instance is identified using a numeric id. The controls are
+   pairs consisting of a default value and a reference pointing to the current
+   value (if set). */
+
+private idref putref getref;
+
+idref x		= [ref emptydict,x];
+
+putref id [d,x] y
+		= put d $ insert (get d) (id=>y) $$ ();
+putref id x y	= printf "bad putref: %s %s %s\n" (str id,str x,str y) $$ ();
+
+getref id [d,x]	= get d!id if member (get d) id;
+		= x otherwise;
+getref id x	= printf "bad getref: %s %s\n" (str id,str x) $$ ();
+
+/* The control parameters. */
+
+private BASE SCALE MIN_NOTE MAX_NOTE MIN_VEL MAX_VEL VEL_BIAS
+  MIN_DUR MAX_DUR DUR_BIAS QUANT_MODE DELTA DUR_VALS
+  MIN_SHIFT MAX_SHIFT SHIFT_BIAS MIN_STEP MAX_STEP STEP_BIAS
+  MIN_PROB MAX_PROB PROB_BIAS MAX_NOTES MAX_NOTES_BIAS METER
+  INDISP NPULSES UPBEAT TEMPO TIMEBASE DIVISION PULSES STEP_MODE
+  METRONOME OSTINATO PERIOD HRM MIN_HARM MAX_HARM HARM_BIAS
+  PREF PREF_BIAS TRACE LIMIT UNIQUE HOLD MUTE PITCH_TRACKER VEL_TRACKER
+  ARG1 ARG2 ARG3 ARG4 IN_CHAN OUT_CHAN CTL1 CTL2 CTL3 CTL4 CTL5 CTL6 CTL7
+  NEXT_METER NEXT_TEMPO NEXT_TIMEBASE IN_CACHE OUT_CACHE DIR ARP_CACHE VELS;
+
+let BASE = idref 0;
+let SCALE = idref (0,[]);
+let MIN_NOTE = idref 36;
+let MAX_NOTE = idref 84;
+let MIN_VEL = idref 80;
+let MAX_VEL = idref 120;
+let VEL_BIAS = idref 1.0;
+let MIN_DUR = idref 24;
+let MAX_DUR = idref 48;
+let DUR_BIAS = idref 0.0;
+let QUANT_MODE = idref false;
+let DELTA = idref 24;
+let DUR_VALS = idref [];
+let MIN_SHIFT = idref 0;
+let MAX_SHIFT = idref 0;
+let SHIFT_BIAS = idref 0.0;
+let MIN_STEP = idref 0;
+let MAX_STEP = idref 127;
+let STEP_BIAS = idref 0.0;
+let MIN_PROB = idref 0.0;
+let MAX_PROB = idref 1.0;
+let PROB_BIAS = idref 1.0;
+let MAX_NOTES = idref 5;
+let MAX_NOTES_BIAS = idref 0.0;
+let METER = idref [2,2];
+let INDISP = idref (indisp [2,2]);
+let NPULSES = idref (foldl (*) 1 [2,2]);
+let UPBEAT = idref 0;
+let TEMPO = idref 120;
+let TIMEBASE = idref 4;
+let DIVISION = idref 48;
+let PULSES = idref (0,[]);
+let STEP_MODE = idref 0;
+let METRONOME = idref 0;
+let OSTINATO = idref false;
+let PERIOD = idref 0;
+let HRM = idref 0;
+let MIN_HARM = idref 0.14;
+let MAX_HARM = idref 1.0;
+let HARM_BIAS = idref 0.0;
+let PREF = idref 0.0;
+let PREF_BIAS = idref 0.0;
+let TRACE = idref 0;
+let LIMIT = idref false;
+let UNIQUE = idref false;
+let HOLD = idref false;
+let MUTE = idref false;
+let PITCH_TRACKER = idref 0;
+let VEL_TRACKER = idref 0;
+let ARG1 = idref 0;
+let ARG2 = idref 0;
+let ARG3 = idref 0;
+let ARG4 = idref 0;
+let IN_CHAN = idref 1;
+let OUT_CHAN = idref 1;
+let CTL1 = idref 1;
+let CTL2 = idref 100;
+let CTL3 = idref 64;
+let CTL4 = idref 0;
+let CTL5 = idref 0;
+let CTL6 = idref 0;
+let CTL7 = idref 64;
+
+let NEXT_METER = idref ();
+let NEXT_TEMPO = idref ();
+let NEXT_TIMEBASE = idref ();
+
+/* Input and output note memory. These are needed for the harmonicity and
+   uniqueness filters. */
+
+let IN_CACHE = idref emptydict;
+
+private valid validh;
+valid t0 (n=>t)	= t==-1 || t>t0;
+validh h t0 e	= h || valid t0 e;
+
+private empty_in_cache;
+empty_in_cache id
+		= putref id IN_CACHE emptydict;
+
+private filter_in_cache;
+filter_in_cache id t
+		= putref id IN_CACHE $ dict $
+		  filter (validh (getref id HOLD) t) $ list $
+		  getref id IN_CACHE;
+
+private in_cache;
+in_cache id (n,v) t
+		= putref id IN_CACHE
+		  (if v>0 then
+		     // note on => add new note to cache
+		     insert (getref id IN_CACHE) (n => -1)
+		   else if getref id HOLD || getref id TRACE>0 then
+		     // note off, traced => set offset time
+		     insert (getref id IN_CACHE) (n => t+getref id TRACE)
+		   else
+		     // note off, not traced => delete note immediately
+		     delete (getref id IN_CACHE) n);
+
+let OUT_CACHE = idref emptydict;
+
+private empty_out_cache;
+empty_out_cache id
+		= putref id OUT_CACHE emptydict;
+
+private filter_out_cache;
+filter_out_cache id t
+		= putref id OUT_CACHE $ dict $ filter (valid t) $ list $
+		  getref id OUT_CACHE;
+
+private out_cache;
+out_cache id n t
+		= putref id OUT_CACHE $ insert (getref id OUT_CACHE) (n=>t);
+
+private update_out_cache;
+update_out_cache id t (note n _ d)
+		= out_cache id n (t+d+1);
+
+/* Manage the direction of arpeggios, as well as the "last notes" cache,
+   depending on the current step mode. */
+
+let DIR = idref 0;
+let ARP_CACHE = idref [];
+
+private arp_cache;
+arp_cache id notes	= putref id ARP_CACHE notes;
+
+private direction;
+
+direction id 0 0	= arp_cache id [] $$ putref id DIR 0;
+direction id 0 1	= arp_cache id [] $$ putref id DIR 1;
+direction id 0 2	= arp_cache id [] $$ putref id DIR (-1);
+direction id 0 3	= arp_cache id [] $$ putref id DIR 1
+			    if getref id DIR==0;
+direction id 0 4	= arp_cache id [] $$ putref id DIR (-1)
+			    if getref id DIR==0;
+direction id 0 _	= arp_cache id [] $$ putref id DIR (-getref id DIR);
+direction id _ _	= () otherwise;
+
+/* Helper functions to compute random double values in the range [0,1] and
+   [0,1), respectively. */
+
+random1 = uint random/4294967295.0;
+random2 = uint random/4294967296.0;
+
+/* Helper functions to calculate biased values and random permutations. These
+   are used with some of the random generation functions below. */
+
+private biased_value;
+biased_value x1 x2 b w
+		= x2-b*(1-w)*(x2-x1) if b>=0;
+		= biased_value x1 x2 (-b) (1-w) otherwise;
+
+// This only works if all weights are > 0!
+private shuffle;
+shuffle _ [] _	= [];
+shuffle k _ _	= [] if k <= 0;
+shuffle k xs ws	= xs!i : shuffle (k-1)
+		         (xs!!(0..i-1)+xs!!(i+1..#xs-1))
+		         (ws!!(0..i-1)+ws!!(i+1..#ws-1))
+when
+  // accumulate weights
+  sws = scanl1 (+) ws; s = last sws;
+  // pick a random index
+  is = 0..#xs-1;
+  i = search sws 0 (random1*s<) with
+        // Find an item satisfying a given predicate.
+        search [] k p		= -1;
+	search (x:xs) k p	= k if p x;
+				= search xs (k+1) p otherwise;
+      end;
+  i = if i>=0 then is!i else head is;
+end;
+
+/* Harmonicity filter. Compute the geometric mean of the harmonicities of a
+   given output note candidate w.r.t. to the current set of input notes, and
+   filter the output note depending on the current harmonicity bounds. We also
+   take into account the current harmonicity "bias". With a zero bias, the
+   harmonicities are taken as is. A positive bias raises the harmonicities of
+   notes with lower pulse weights, effectively allowing more disharmonicity at
+   lower weight pulses. Conversely, a negative bias allows more disharmonicity
+   at higher weight pulses. */
+
+/* This is a fairly simplistic implementation, but appears to be appropriate
+   if the target tuning is equal temperament, or a "just" or well-tempered
+   scale near its home key. Our method does *not* distinguish between
+   different keys, as the harmonicity of all intervals is computed in the home
+   key, and we always assume the "standard" just (a.k.a. Didymian a.k.a.
+   Ptolemaic) scale for that purpose. For applications requiring elaborate
+   tunings we should probably use the true harmonic distances between notes
+   w.r.t. the target scale, to account for the distinct colors of different
+   keys in different tunings. */
+
+/* Each harmonicity function comes in two different flavours, one which
+   doesn't count octaves, and one which does. */
+
+// Barlow's "indigestibility" harmonicity metric
+// let bgrad = [0,13.07,8.33,10.07,8.4,4.67,16.73,3.67,9.4,9.07,9.33,12.07,1];
+let bgrad = dmatrix $ map (double.hrm barlow) just;
+// Euler's "gradus suavitatis"
+// let egrad = [0,10,7,7,6,4,13,3,7,6,8,9,1];
+let egrad = dmatrix $ map (double.hrm euler) just;
+let grad = [bgrad,egrad];
+
+private harm_val;
+harm_val id w ms n
+		= if getref id HARM_BIAS == 0 then	// zero bias
+		    geom_mean (map (harm id n) ms)
+		  else if getref id HARM_BIAS > 0 then	// positive bias
+		    (geom_mean (map (harm id n) ms) ^ (1-b)
+		     when b = getref id HARM_BIAS*(1-w) end)
+		  else					// negative bias
+		    (geom_mean (map (harm id n) ms) ^ (1+b)
+		     when b = getref id HARM_BIAS*w end)
+with
+  geom_mean xs	= 1 if null xs;
+		= foldl (*) 1 xs^(1/#xs);
+  hm grad n m	= 1/(1+grad!((max n m - min n m) mod 12));
+  hm2 grad n m	= 1/(1+grad!(d mod 12)+(d div 12)*grad!12)
+		    when d = max n m - min n m end;
+  harm id	= hm (grad!(getref id HRM div 2)) if getref id HRM mod 2 == 0;
+		= hm2 (grad!(getref id HRM div 2)) otherwise;
+end;
+
+private harm_filter;
+harm_filter id w ms n
+		= false if null ms;	// empty input (no eligible notes)
+		= h >= getref id MIN_HARM && h <= getref id MAX_HARM
+		    when h = harm_val id w ms n end;
+
+/* Uniqueness filter. */
+
+private unique_filter;
+unique_filter d n
+		= ~member d n;
+
+/* Scale filter. */
+
+private scale_filter;
+scale_filter id []
+		= [];
+scale_filter id notes
+		= filter (scalep (getref id BASE) (getref id SCALE)) notes
+with
+  scalep base (k,scale) n
+		= all ((~=n mod k).(mod k).(+base)) scale if k>0;
+  scalep base (_,scale) n
+		= all ((~=n).(+base)) scale otherwise;
+end;
+
+/* Step width filter. The step bias parameter is used to determine the
+   effective maximum step width. With a zero bias, the maximum step width is
+   taken as is. With a positive bias, weaker pulses get a lower step
+   width. Conversely, a negative bias gives lower step width to stronger
+   pulses. Note that the minimum step width value is always taken as is. */
+
+private step_width_filter;
+
+step_width_filter id _ _ _ [] = [];
+
+step_width_filter id w dir cache notes
+= // printf "cache = %s, lo = %d, hi = %d, notes = %s\n" (str cache,lo,hi,str notes) $$
+  notes
+  when lo = head cache; hi = last cache;
+    min_stp = getref id MIN_STEP; // can be negative
+    max_stp = max 0 (getref id MAX_STEP); // always nonnegative
+    max_stp = int $ round $
+    	      biased_value (abs min_stp) max_stp (getref id STEP_BIAS) w;
+    notes = filter (valid_step_min dir min_stp max_stp lo hi) notes;
+    notes = filter (valid_step_max dir min_stp max_stp lo hi) notes;
+  end with
+    valid_step_min 0 min_stp max_stp lo hi n
+		= (n>=lo+min_stp) || (n<=hi-min_stp);
+    valid_step_min 1 min_stp max_stp lo hi n
+		= n>=lo+min_stp;
+    valid_step_min (-1) min_stp max_stp lo hi n
+		= n<=hi-min_stp;
+    valid_step_max 0 min_stp max_stp lo hi n
+		= (n>=lo-max_stp) && (n<=hi+max_stp);
+    valid_step_max 1 min_stp max_stp lo hi n
+		= (n>=lo+min 0 min_stp) && (n<=hi+max_stp);
+    valid_step_max (-1) min_stp max_stp lo hi n
+		= (n>=lo-max_stp) && (n<=hi-min 0 min_stp);
+  end if ~null cache;
+= // printf "empty cache, up, lo = %d, notes = %s\n" (lo,str notes) $$
+  notes
+  when lo = head notes;
+    max_stp = int $ round $
+    	      biased_value (getref id MIN_STEP) (getref id MAX_STEP)
+	      (getref id STEP_BIAS) w;
+    notes = filter (<=lo+max_stp) notes;
+  end if dir==1;
+= // printf "empty cache, down, hi = %d, notes = %s\n" (hi,str notes) $$
+  notes
+  when hi = last notes;
+    max_stp = int $ round $
+    	      biased_value (getref id MIN_STEP) (getref id MAX_STEP)
+	      (getref id STEP_BIAS) w;
+    notes = filter (>=hi-max_stp) notes;
+  end if dir==-1;
+= notes otherwise;
+
+/* The actual note generation algorithm starts here. At each call, we generate
+   the current list of eligible notes, pass it through the harmonicity filter,
+   pick a given number of notes at random, and equip the resulting notes with
+   random velocities and durations. The generation process is guided by the
+   current pulse weights (computed from Barlow's indispensabilities, see
+   indisp.q). */
+
+/* Set det_arp below to true in order to use the to use the deterministic
+   arpeggiator (works with up/down step modes only). */
+
+let det_arp = false;
+
+/* The note generator. The density (i.e., max note number) and preference bias
+   values are applied here to determine the effective density and harmonic
+   preference in correspondence to the current pulse weight. A zero bias
+   always means to use the nominal values. A positive bias reduces the density
+   (resp. preference) for weaker pulses, a negative bias value reduces the
+   corresponding values for stronger pulses. */
+
+private rand_notes rand_prob rand_vel rand_dur rand_shift;
+
+rand_notes id w	= [] if getref id MAX_NOTES == 0;
+= catmap (rand_note id w) notes when
+  // initial note range
+  notes = getref id MIN_NOTE..getref id MAX_NOTE;
+  // scale filter
+  notes = scale_filter id notes;
+  // uniqueness filter
+  notes = if getref id UNIQUE then
+            filter (unique_filter (getref id OUT_CACHE)) notes
+    	  else
+	    notes;
+  // harmonicity filter
+  mods = keys (getref id IN_CACHE);
+  notes = filter (harm_filter id w mods) notes;
+  // step width filter (this must be the last one!)
+  notes = restart id w (step_width_filter id w (getref id DIR)
+          	        (getref id ARP_CACHE) notes) notes;
+  // calculate weighted harmonicities
+  p = biased_value 0 (getref id PREF) (getref id PREF_BIAS) w;
+  weights = if p>0 then
+	      map ((^(p*10)).harm_val id w mods) notes
+	    else
+	      map (cst 1) notes;
+  // choose notes
+  n_notes = if getref id LIMIT then
+              getref id MAX_NOTES-#getref id OUT_CACHE
+	    else
+	      getref id MAX_NOTES;
+  n = int $ round $ biased_value 1 n_notes (getref id MAX_NOTES_BIAS) w;
+  notes = pick_notes n (getref id DIR) notes weights;
+  // update the arpeggiator cache if necessary
+  if null notes then () else arp_cache id (sort (<) notes);
+end with
+  rand_note id w i
+		= [note i (rand_vel id w) (rand_dur id w)]
+		    if random2 <= rand_prob id w;
+		= [] otherwise;
+  // random arpeggios
+  pick_notes n dir notes weights
+		= shuffle n notes weights if ~det_arp || dir==0;
+  // deterministic arpeggios
+  pick_notes n 1 notes _
+		= take n notes;
+  pick_notes n (-1) notes _
+		= take n (reverse notes);
+  // try to restart an arpeggio when we're running out of notes
+  restart id w [] notes
+		= direction id 0 (getref id STEP_MODE) $$
+		  step_width_filter id w (getref id DIR) [] notes;
+  restart id _ notes _
+		= notes otherwise;
+  /* XXXTODO: This is slow, especially if the input list is already partially
+     sorted. We should use a faster quicksort implementation here. */
+  sort p []	= [];
+  sort p (x:xs)	= sort p [l | l = xs; l<x] + (x : sort p [r | r = xs; r>=x])
+		  with x<y = p x y; x>=y = ~p x y end;
+end;
+
+/* The current probability with which a note is picked. Depends on the pulse
+   weight, and also on the probability bias value. For zero bias, all notes
+   are picked with the same probability, which equals the maximum note
+   probability. For positive biases, weaker pulses get lower probabilities,
+   down to the minimum note probability (for a bias value of -1). For negative
+   values, stronger pulses are attenuated instead. */
+
+rand_prob id w	= biased_value p1 p2 b w
+		    when p1 = getref id MIN_PROB;
+		      p2 = getref id MAX_PROB;
+		      b = getref id PROB_BIAS;
+		    end;
+
+/* The velocity of the current pulse. Also depends on the pulse weight and the
+   velocity bias. The treatment of the bias values is analogous to
+   rand_prob. */
+
+rand_vel id w	= (max 0 . min 127 . int . round) (biased_value v1 v2 b w)
+		    when v1 = getref id MIN_VEL;
+		      v2 = getref id MAX_VEL;
+		      b = getref id VEL_BIAS;
+		    end;
+
+/* A random duration. A positive/negative bias means that stronger/weaker
+   pulses will tend to get longer durations, respectively. We employ a
+   Gaussian distribution here, which is shaped according to the bias parameter
+   and is translated in correspondence with the pulse weight.
+
+   Note that the constant att parameter below can be used to determine the
+   desired nominal attenuation of the bell curve, which is scaled by the bias
+   parameter. The given value is the (nominal) value of the bell curve at the
+   borders of the relative weight range (-1..1). Choosing smaller values for A
+   gives you a more prominent peak in the distribution (as well as stronger
+   attenuations at the borders). A = 0.05 seems to be a reasonably good
+   default. */
+
+private rand_val;
+rand_val _ _ _ []
+		= 0;
+rand_val a b w vs
+		= head $ shuffle 1 vs $ rand_weights a (#vs) b w
+with
+  rand_weights a n b w
+		= map (cst 1) (1..n) if b==0 || n<=1;
+		= map ((gauss a b).(-w+).(/(n-1))) (0..n-1) if b>0;
+		= map ((gauss a (-b)).(w-1+).(/(n-1))) (0..n-1) otherwise;
+  gauss a b x	= exp (-x*x*b*(-ln a));
+end;
+
+let att = 0.05; // nominal attenuation, edit as needed
+
+rand_dur id w	= rand_val att (getref id DUR_BIAS) w dur_vals
+		    when d1 = getref id MIN_DUR;
+		      d2 = getref id MAX_DUR;
+		      d = getref id DELTA;
+		      dur_vals = d1:d1+d..d2;
+		    end
+		    if ~getref id QUANT_MODE || null (getref id DUR_VALS);
+		= rand_val att (getref id DUR_BIAS) w (getref id DUR_VALS);
+
+/* A random pulse shift. Works like the random durations above, but without
+   quantized values. */
+
+let att1 = 0.00001;
+
+rand_shift id w	= rand_val att1 (getref id SHIFT_BIAS) w shift_vals
+		    when s1 = getref id MIN_SHIFT;
+		      s2 = getref id MAX_SHIFT;
+		      shift_vals = s1..s2;
+		    end;
+
+/* Pulse filter. */
+
+private pulsep;
+pulsep (k,pulses) n
+		= true if null pulses;
+		= all (~=n mod k) pulses if k>0;
+		= all (~=n) pulses otherwise;
+
+/* Calculate the metronome tick for a given pulse weight. */
+
+private metronome_tick;
+metronome_tick id m w
+		= 0 if w < m-getref id METRONOME;
+		= min 127 $ int $ round (64+(w-m+k)/(k-1)*63)
+		    if k > 1
+		    when k = min m (getref id METRONOME) end;
+		= 127 otherwise;
+
+/* Handle meter and tempo changes. */
+
+private update_meter;
+update_meter id	= () when
+  update_meter id (getref id NEXT_METER);
+  update_tempo id (getref id NEXT_TEMPO);
+  update_timebase id (getref id NEXT_TIMEBASE);
+end with
+  update_meter id x = () when
+    putref id METER x;
+    putref id INDISP (indisp x);
+    putref id NPULSES (foldl (*) 1 x);
+    putref id NEXT_METER ();
+  end if listp x && x ~= getref id METER;
+  update_tempo id x = () when
+    putref id TEMPO x; putref id NEXT_TEMPO ();
+  end if realp x && x ~= getref id TEMPO;
+  update_timebase id x = () when
+    putref id TIMEBASE x; putref id NEXT_TIMEBASE ();
+  end if realp x && x ~= getref id TIMEBASE;
+end;
+
+/* Pitch and velocity tracking. */
+
+private none pitchtracker trebletracker basstracker veltracker;
+
+none _ _ _	= [];
+
+/* Pitch tracker: Follow input notes and adjust note range automagically. arg1
+   and arg2 denote the number of semitones below and above the current range
+   to which the note range should be adjusted. E.g., arg1=-12, arg2=12 => note
+   range of 1 octave below and above the current range of input notes. Returns
+   a list of control messages with the new values. */
+
+pitchtracker id (arg1,arg2) (n,v)
+		= [min_note lo,max_note hi]
+		    when lo = head notes; hi = last notes;
+		      lo = (max 0 . min 127) (lo+arg1);
+		      hi = (max 0 . min 127) (hi+arg2);
+		    end if ~null notes
+		    when notes = keys (getref id IN_CACHE) end;
+		= [] otherwise;
+
+/* Treble and bass tracker: Like pitch tracker above, but follow the highest
+   or lowest note only, respectively. */
+
+trebletracker id (arg1,arg2) (n,v)
+		= [min_note lo,max_note hi]
+		    when m = last notes;
+		      lo = (max 0 . min 127) (m+arg1);
+		      hi = (max 0 . min 127) (m+arg2);
+		    end if ~null notes
+		    when notes = keys (getref id IN_CACHE) end;
+		= [] otherwise;
+
+basstracker id (arg1,arg2) (n,v)
+		= [min_note lo,max_note hi]
+		    when m = head notes;
+		      lo = (max 0 . min 127) (m+arg1);
+		      hi = (max 0 . min 127) (m+arg2);
+		    end if ~null notes
+		    when notes = keys (getref id IN_CACHE) end;
+		= [] otherwise;
+
+let tracker = [none,pitchtracker,trebletracker,basstracker];
+
+/* Velocity tracker: Follow input notes and adjust velocity range
+   automagically. ARG1 and ARG2 denote the velocity units below and above the
+   current range to which the velocity range should be adjusted. */
+
+private VELS;
+let VELS = {idref 0 | n = 0..127};
+
+veltracker id (arg1,arg2) (n,v)
+		= putref id (VELS!n) v $$ [min_vel lo,max_vel hi]
+		    when v = if v>0 then v else head vs;
+		      lo = foldl min v vs; hi = foldl max v vs;
+		      lo = (max 0 . min 127) (lo+arg1);
+		      hi = (max 0 . min 127) (hi+arg2);
+		    end if ~null vs || v>0
+		    when
+		      vs = map (getref id.(VELS!)) (keys (getref id IN_CACHE));
+		      vs = filter (>0) (filter intp vs);
+		    end;
+		= [] otherwise;
+
+/* Raptor state. This is the additional state information we have to maintain
+   between invokations of the note generation algorithm: s = stopped state
+   (whether we're currently suspended), p = pulse state (whether the next
+   pulse is enabled), t0 = nominal time of the most recent pulse in ticks (0
+   initially), dt0 = shift of the most recent pulse, t1 = nominal time of the
+   next pulse, dt1 = shift of the next pulse, n1 = next pulse number, w1 =
+   next pulse weight, k1 = next metronome tick. Note that the absolute time
+   values t0 and t1 are bigints so that we do not run into problems with
+   wrapover at end of range. Also note that we're always one pulse ahead, so
+   we already know the parameters of the next pulse when the most recent pulse
+   has just been processed. */
+
+private init_state start_state stop_state next_state;
+
+init_state id =
+(ref true,ref false,ref 0L,ref 0,ref 0L,ref 0,ref 0,ref 0.0,ref 0);
+		      
+start_state id (s,p,t0,dt0,t1,dt1,n1,w1,k1) = get dt1
+when
+  m = getref id NPULSES; n = getref id UPBEAT mod m;
+  w = getref id INDISP!n; k = metronome_tick id m w;
+  w = w/m;
+  update_meter id;
+  put s false; put p $ pulsep (getref id PULSES) 0;
+  put t0 0L; put dt0 0;
+  put t1 0L; put dt1 $ max 0 $ rand_shift id w;
+  put n1 n; put w1 w; put k1 k;
+end;
+
+stop_state id (s,p,t0,dt0,t1,dt1,n1,w1,k1) = put s true $$ ();
+
+next_state id (s,p,t0,dt0,t1,dt1,n1,w1,k1) = int $
+get t1+get dt1-get t0-get dt0
+when
+  if get n1+1 >= getref id NPULSES then update_meter id else ();
+  m = getref id NPULSES; n = (get n1+1) mod m;
+  w = getref id INDISP!n; k = metronome_tick id m w;
+  w = w/m;
+  put p $ pulsep (getref id PULSES) n;
+  put t0 $ get t1; put dt0 $ get dt1;
+  put t1 $ get t1+getref id DIVISION;
+  put dt1 $ rand_shift id w;
+  put n1 n; put w1 w; put k1 k;
+end;
+
+/* Status queries. */
+
+private stopped active last_tick next_weight next_metro;
+
+stopped (s,p,t0,dt0,t1,dt1,n1,w1,k1)		= get s;
+active (s,p,t0,dt0,t1,dt1,n1,w1,k1)		= get p;
+last_tick (s,p,t0,dt0,t1,dt1,n1,w1,k1)		= get t0+get dt0;
+next_weight (s,p,t0,dt0,t1,dt1,n1,w1,k1)	= get w1;
+next_metro (s,p,t0,dt0,t1,dt1,n1,w1,k1)		= get k1;
+
+/* Helper functions to convert scales and meter values, etc. */
+
+private splitlist splitlist2 liststr;
+
+splitlist x::string
+		= map val $ split "-" x;
+splitlist2 x::string
+		= case split "/" x of
+		    [x,k] = (k,splitlist x) if intp k when k = val k end;
+		    _ = (0,splitlist x);
+		  end;
+
+liststr (0,x)	= join "-" $ map str x;
+liststr (k::int,x)
+		= join "-" (map str x) + sprintf "/%d" k;
+liststr x	= join "-" $ map str x;
+
+/* Read and write preset files. NOTE: Alas, at present this isn't compatible
+   with Raptor4 presets. */
+
+read_preset id x::string =
+// Translate the preset to a list of corresponding control messages.
+(filter ignorep $ zipwith ($)
+ [base, scale,
+  min_note, max_note,
+  min_vel, max_vel, vel_bias,
+  min_dur, max_dur, dur_bias,
+  quant_mode, delta, dur_vals,
+  min_shift, max_shift, shift_bias,
+  min_step, max_step, step_bias,
+  min_prob, max_prob, prob_bias,
+  max_notes, max_notes_bias,
+  meter, upbeat, tempo, timebase, division,
+  pulses, step_mode, metronome,
+  ostinato, period,
+  hrm, min_harm, max_harm, harm_bias,
+  pref, pref_bias, trace,
+  limit, unique, ignore/*hold*/, mute,
+  pitch_tracker, vel_tracker,
+  arg1, arg2, arg3, arg4,
+  in_chan, out_chan,
+  ctl1, ctl2, ctl3, ctl4,
+  ctl5, ctl6, ctl7] data) +
+// Add the preset file and name, so that these are set in the GUI.
+[preset_file x,preset_name y]
+when
+  y = last $ split "/" x; y:_ = split "." y;
+end if pointerp fp && listp data
+when path = split "/" x; name = last path;
+  x = if index name "." >= 0 then x else x+".raptor";
+  fp = fopen x "r"; data = val $ fget fp;
+end with
+  /* Quick hack to ignore the hold flags which are stored in presets but
+     not set when loading. */
+  ignorep (ignore _) = false;
+  ignorep _ = true otherwise;
+end;
+
+write_preset id x::string =
+flip fputs fp $ str
+[getref id BASE, liststr (getref id SCALE),
+ getref id MIN_NOTE, getref id MAX_NOTE,
+ getref id MIN_VEL, getref id MAX_VEL, getref id VEL_BIAS,
+ getref id MIN_DUR, getref id MAX_DUR, getref id DUR_BIAS,
+ getref id QUANT_MODE, getref id DELTA,
+ liststr (getref id DUR_VALS),
+ getref id MIN_SHIFT, getref id MAX_SHIFT, getref id SHIFT_BIAS,
+ getref id MIN_STEP, getref id MAX_STEP, getref id STEP_BIAS,
+ getref id MIN_PROB, getref id MAX_PROB, getref id PROB_BIAS,
+ getref id MAX_NOTES, getref id MAX_NOTES_BIAS,
+ liststr (getref id METER), getref id UPBEAT,
+ getref id TEMPO, getref id TIMEBASE, getref id DIVISION,
+ liststr (getref id PULSES), getref id STEP_MODE, getref id METRONOME,
+ getref id OSTINATO, getref id PERIOD,
+ getref id HRM, getref id MIN_HARM, getref id MAX_HARM, getref id HARM_BIAS,
+ getref id PREF, getref id PREF_BIAS, getref id TRACE,
+ getref id LIMIT, getref id UNIQUE,
+ getref id HOLD, getref id MUTE,
+ getref id PITCH_TRACKER, getref id VEL_TRACKER,
+ getref id ARG1, getref id ARG2, getref id ARG3, getref id ARG4,
+ getref id IN_CHAN, getref id OUT_CHAN,
+ getref id CTL1, getref id CTL2, getref id CTL3, getref id CTL4,
+ getref id CTL5, getref id CTL6, getref id CTL7] $$
+// Return the preset file and name as control messages.
+[preset_file x,preset_name y]
+when
+  y = last $ split "/" x; y:_ = split "." y;
+end if pointerp fp
+when path = split "/" x; name = last path;
+  x = if index name "." >= 0 then x else x+".raptor";
+  fp = fopen x "w";
+end;
+
+/* Pd interface. The creation argument is the id of the Raptor instance, which
+   must be an integer. The inlet receives messages to set control parameters,
+   "start" and "stop" to start/stop the note generation process, "bang" to
+   generate notes for the next pulse, and "note n v t" to keep track of
+   incoming notes, where n = note number, v = velocity/0 for note-off, t =
+   time in ticks (integer) since the last pulse. The first outlet returns the
+   delta time in ticks indicating when the next pulse is due after a "start"
+   or "bang" message. The second outlet returns note messages in the format
+   "note n v t" where n = note number, v = velocity and t = duration of the
+   note in ticks. */
+
+::raptor id::int = 1,2,process with
+
+// process msg = () if false when
+//   printf "id = %s, state = %s\nmsg = %s\n"
+//   (str id,str (tuple (map get (list state))),str msg);
+// end;
+
+/* Process control messages. Note that pd-pure passes all numeric data as
+   floats, so we convert them to integers on the fly as necessary. */
+
+process (base x::double)
+		= putref id BASE (int x);
+process (scale x::string)
+		= () if (case splitlist2 x of
+		     	   k::int,x = putref id SCALE (k,x) $$ true
+		      	     if k>=0 && all intp x && all (>=0) x;
+			   _ = false;
+			 end);
+
+process (min_note x::double)
+		= putref id MIN_NOTE (int x);
+process (max_note x::double)
+		= putref id MAX_NOTE (int x);
+
+process (min_vel x::double)
+		= putref id MIN_VEL (int x);
+process (max_vel x::double)
+		= putref id MAX_VEL (int x);
+process (vel_bias x::double)
+		= putref id VEL_BIAS x;
+
+process (min_dur x::double)
+		= putref id MIN_DUR (int x);
+process (max_dur x::double)
+		= putref id MAX_DUR (int x);
+process (dur_bias x::double)
+		= putref id DUR_BIAS x;
+process (quant_mode x::double)
+		= putref id QUANT_MODE (x~=0);
+process (delta x::double)
+		= putref id DELTA (int x);
+process (dur_vals x::string)
+		= () if (case splitlist x of
+		     	   x = putref id DUR_VALS x $$ true
+			     if listp x && all intp x && all (>0) x;
+			   _ = false;
+			 end);
+
+process (min_shift x::double)
+		= putref id MIN_SHIFT (int x);
+process (max_shift x::double)
+		= putref id MAX_SHIFT (int x);
+process (shift_bias x::double)
+		= putref id SHIFT_BIAS x;
+
+process (min_step x::double)
+		= putref id MIN_STEP (int x);
+process (max_step x::double)
+		= putref id MAX_STEP (int x);
+process (step_bias x::double)
+		= putref id STEP_BIAS x;
+
+process (min_prob x::double)
+		= putref id MIN_PROB x;
+process (max_prob x::double)
+		= putref id MAX_PROB x;
+process (prob_bias x::double)
+		= putref id PROB_BIAS x;
+
+process (max_notes x::double)
+		= putref id MAX_NOTES (int x);
+process (max_notes_bias x::double)
+		= putref id MAX_NOTES_BIAS x;
+
+/* FIXME: Updates of tempo and meter should actually be done in realtime, but
+   this doesn't work yet. For now we just defer the update until the first
+   pulse of the next bar. */
+
+process (meter x::string t)
+		= () if (case splitlist x of
+		     	   x = putref id NEXT_METER x $$ true
+			     if listp x && all intp x && all (>0) x;
+			   _ = false;
+			 end);
+process (tempo x::double t)
+		= putref id NEXT_TEMPO x if x>0;
+process (timebase x::double t)
+		= putref id NEXT_TIMEBASE x if x>0;
+process (upbeat x::double)
+		= putref id UPBEAT (int x);
+process (division x::double)
+		= putref id DIVISION (int x);
+
+process (pulses x::string)
+		= () if (case splitlist2 x of
+		     	   k::int,x = putref id PULSES (k,x) $$ true
+		      	     if k>=0 && all intp x && all (>=0) x;
+			   _ = false;
+			 end);
+process (step_mode x::double)
+		= putref id STEP_MODE (int x) $$
+		  direction id 0 (getref id STEP_MODE);
+process (metronome x::double)
+		= putref id METRONOME (int x);
+
+process (ostinato x::double)
+		= putref id OSTINATO (x~=0);
+process (period x::double)
+		= putref id PERIOD (int x);
+
+process (hrm x::double)
+		= putref id HRM (int x);
+process (min_harm x::double)
+		= putref id MIN_HARM x;
+process (max_harm x::double)
+		= putref id MAX_HARM x;
+process (harm_bias x::double)
+		= putref id HARM_BIAS x;
+
+process (pref x::double)
+		= putref id PREF x;
+process (pref_bias x::double)
+		= putref id PREF_BIAS x;
+process (trace x::double)
+		= putref id TRACE (int x);
+
+process (limit x::double)
+		= putref id LIMIT (x~=0);
+process (unique x::double)
+		= putref id UNIQUE (x~=0);
+
+process (hold x::double)
+		= putref id HOLD (x~=0);
+process (mute x::double)
+		= putref id MUTE (x~=0);
+
+process (pitch_tracker x::double)
+		= putref id PITCH_TRACKER (int x) if x>=0;
+process (vel_tracker x::double)
+		= putref id VEL_TRACKER (int x) if x>=0;
+
+process (arg1 x::double)
+		= putref id ARG1 (int x);
+process (arg2 x::double)
+		= putref id ARG2 (int x);
+process (arg3 x::double)
+		= putref id ARG3 (int x);
+process (arg4 x::double)
+		= putref id ARG4 (int x);
+
+process (in_chan x::double)
+		= putref id IN_CHAN (int x);
+process (out_chan x::double)
+		= putref id OUT_CHAN (int x);
+
+process (ctl1 x::double)
+		= putref id CTL1 (int x);
+process (ctl2 x::double)
+		= putref id CTL2 (int x);
+process (ctl3 x::double)
+		= putref id CTL3 (int x);
+process (ctl4 x::double)
+		= putref id CTL4 (int x);
+process (ctl5 x::double)
+		= putref id CTL5 (int x);
+process (ctl6 x::double)
+		= putref id CTL6 (int x);
+process (ctl7 x::double)
+		= putref id CTL7 (int x);
+
+/* Preset management. */
+
+process (load_preset x::string)
+		= smatrix (map (1,) x)
+		  if listp x when x = read_preset id x end;
+
+process (save_preset X:String)
+		= smatrix (map (1,) x)
+		  if listp x when x = write_preset id x end;
+
+/* Start and stop note generation. */
+
+process start	= empty_in_cache id $$ empty_out_cache id $$
+		  start_state id state;
+
+process stop	= stop_state id state;
+
+process reset	= empty_in_cache id $$ empty_out_cache id;
+
+process _	= () if stopped state;
+
+/* Generate notes for the next pulse. */
+
+process bang	= smatrix ((if k>0 then [(1,tick k)] else []) +
+			   map (1,) notes + [(0,dt)])
+when
+  w = next_weight state; k = next_metro state; t = last_tick state;
+  filter_in_cache id t; filter_out_cache id t;
+  notes = if active state && ~getref id MUTE then rand_notes id w else [];
+  dt = next_state id state;
+  do (update_out_cache id t) notes;
+  // printf "output cache: %s\n" $ str (getref id OUT_CACHE);
+end;
+
+/* Process incoming note messages. */
+
+process (note n v t)
+		= smatrix (map (1,) $ pitches+velocities)
+when
+  n = int n; v = int v; t = int t;
+  in_cache id (n,v) (last_tick state+t);
+  pitches = (tracker!getref id PITCH_TRACKER) id
+  	    (getref id ARG1,getref id ARG2) (n,v);
+  velocities = if getref id VEL_TRACKER>0 then
+		 veltracker id (getref id ARG3,getref id ARG4) (n,v)
+	       else [];
+  // printf "input cache: %s\n" $ str (getref id IN_CACHE);
+end;
+
+process (t:vels)
+		= smatrix (catmap process notes)
+when
+  in_cache = getref id IN_CACHE; t = int t;
+  notes = zip (0..#vels-1) (map (int.round.(*127)) vels);
+  notes = [note n v t | n,v = notes;
+  	   v==0 && member in_cache n && in_cache!n<0 ||
+  	   v>0 && (~member in_cache n || in_cache!n>=0)];
+  // printf "notes = %s\n" (str notes);
+end;
+
+/* Unrecognized messages. */
+
+process msg	= printf "invalid message %s\n" $ str msg $$ ();
+
+end
+
+when state = init_state id end;
+
+namespace;
