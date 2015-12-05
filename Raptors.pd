@@ -128,7 +128,7 @@
 #X text 196 180 down;
 #X obj 11 243 r both-sweep;
 #X obj 11 35 nbx 5 14 0 1 0 0 empty harm-display min-harm 0 -8 0 12
--262144 -1 -1 0.0422937 256;
+-262144 -1 -1 0 256;
 #X obj 93 36 nbx 5 14 -1 1 0 0 empty pref-display pref 0 -8 0 12 -262144
 -1 -1 0.8 256;
 #X obj 286 263 s harm-display;
@@ -242,13 +242,13 @@ presets/bass.raptor \; lead load_preset presets/piano.raptor;
 #X msg 14 399 \; upper load_preset presets/3/arp.raptor \; lower load_preset
 presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X text 18 548 OSC interface;
-#X obj 747 583 print OSC;
-#X obj 401 631 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 746 583 print OSC;
+#X obj 401 689 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X text 19 564 needs mrpeach;
 #X obj 145 490 udpreceive 8000;
 #X obj 145 521 unpackOSC;
-#X obj 145 619 list;
+#X obj 145 677 list;
 #X msg 606 394 min-harm \$1;
 #X msg 695 394 harm-bias \$1;
 #X msg 796 394 pref \$1;
@@ -259,35 +259,38 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X obj 606 345 routeOSC /Harmonicity /HarmBias /Preference /PrefBias
 /Density;
 #X msg 975 418 max-notes \$1;
-#X obj 145 559 routeOSC /Notes /Mute1 /Mute2 /Mute3 /Start /Preset
+#X obj 145 617 routeOSC /Notes /Mute1 /Mute2 /Mute3 /Start /Preset
 /Reset /Sustain /Ticks;
-#X msg 535 647 ticks \$1;
+#X msg 535 705 ticks \$1;
 #X obj 203 205 sel F1 F2 F3 F8 F9 Up Down Left Prior Next End F5 F4
 ;
-#X obj 535 618 tgl 15 0 empty empty Metro 17 7 0 12 -262144 -1 -1 1
+#X obj 535 676 tgl 15 0 empty empty Metro 17 7 0 12 -262144 -1 -1 1
 1;
-#X obj 510 505 loadbang;
+#X obj 644 633 loadbang;
 #X obj 974 395 int;
 #X obj 746 549 spigot;
 #X obj 791 517 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 646 580 print OSC;
+#X obj 645 580 print OSC;
 #X obj 645 546 spigot;
 #X obj 690 514 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 452 631 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 452 689 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 401 605 sel 1;
-#X obj 452 605 sel 1;
+#X obj 401 663 sel 1;
+#X obj 452 663 sel 1;
 #X obj 118 245 f;
 #X obj 313 32 t b b;
 #X obj 660 191 r allparts;
-#X obj 145 644 s allparts;
+#X obj 145 702 s allparts;
 #X obj 69 119 s allparts;
-#X obj 535 675 s allparts;
+#X obj 535 733 s allparts;
 #X text 263 7 reset: reload preset;
 #X obj 313 57 s reload;
 #X obj 17 225 r reload;
+#X obj 145 557 pure f with f (x@_ y) = () if last (split "/" x) ===
+"z" \; f x = x end;
+#X text 313 574 get rid of touch messages;
 #X connect 0 0 3 0;
 #X connect 1 0 3 0;
 #X connect 2 0 3 0;
@@ -324,8 +327,8 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X connect 37 0 35 0;
 #X connect 42 0 26 0;
 #X connect 44 0 45 0;
-#X connect 45 0 56 0;
 #X connect 45 0 65 0;
+#X connect 45 0 79 0;
 #X connect 46 0 73 0;
 #X connect 47 0 51 0;
 #X connect 48 0 51 0;
@@ -381,6 +384,7 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X connect 72 0 5 0;
 #X connect 72 0 6 0;
 #X connect 78 0 70 0;
+#X connect 79 0 56 0;
 #X coords 0 -1 1 1 240 40 1 0 0;
 #X restore 462 29 pd controls;
 #X text 462 316 F8: Switch presets;
