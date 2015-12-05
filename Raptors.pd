@@ -1,4 +1,4 @@
-#N canvas 474 276 743 382 12;
+#N canvas 438 180 743 382 12;
 #X obj 9 9 r upper;
 #X obj 9 130 r lower;
 #X obj 9 28 Raptor5;
@@ -17,7 +17,7 @@
 #X obj 92 130 nbx 5 14 0 1e+37 0 0 pref-time pref-time sweep-time 0
 -8 0 12 -262144 -1 -1 10 256;
 #X obj 9 165 vradio 15 1 0 3 harm-sweep harm-sweep harm-sweep 0 -8
-0 12 -262144 -1 -1 2;
+0 12 -262144 -1 -1 0;
 #X text 30 195 stop;
 #X text 31 163 up;
 #X text 30 180 down;
@@ -26,9 +26,9 @@
 #X text 117 195 stop;
 #X text 118 163 up;
 #X text 117 180 down;
-#X floatatom 399 238 5 0 0 0 - - -, f 5;
+#X floatatom 399 238 5 0 0 0 - - -;
 #X msg 399 262 min-harm \$1;
-#X floatatom 577 238 5 0 0 0 - - -, f 5;
+#X floatatom 577 238 5 0 0 0 - - -;
 #X msg 577 262 pref \$1;
 #X msg 399 173 stop;
 #X msg 577 175 stop;
@@ -144,10 +144,10 @@
 #X obj 399 290 s upper;
 #X obj 577 290 s upper;
 #X obj 139 234 ctlin 1;
-#X floatatom 139 261 5 0 0 0 - - -, f 5;
+#X floatatom 139 261 5 0 0 0 - - -;
 #X obj 139 284 / 127;
 #X obj 139 309 expr $f1*($f3-$f2)+$f2;
-#X floatatom 139 337 5 0 0 0 - - -, f 5;
+#X floatatom 139 337 5 0 0 0 - - -;
 #X obj 204 262 r min-harm;
 #X obj 228 284 r max-harm;
 #X connect 14 0 15 0;
@@ -188,7 +188,7 @@
 #X connect 56 0 54 1;
 #X connect 57 0 54 2;
 #X coords 0 -1 1 1 240 220 1 0 0;
-#X restore 462 74 pd harm-sweep;
+#X restore 462 73 pd harm-sweep;
 #N canvas 174 30 922 705 controls 0;
 #X msg 7 51 start;
 #X msg 69 51 stop;
@@ -388,15 +388,15 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X connect 78 0 70 0;
 #X connect 79 0 56 0;
 #X coords 0 -1 1 1 240 40 1 0 0;
-#X restore 462 29 pd controls;
+#X restore 462 28 pd controls;
 #X text 462 316 F8: Switch presets;
 #X text 462 332 F9: Start/Stop;
 #X text 463 348 Up/Down \, PgUp/PgDn: Harmonicity sweep;
 #X text 615 316 F5: Hold;
-#X obj 9 149 Raptor5;
-#X obj 9 270 Raptor5;
 #X text 462 299 F1 \, F2 \, F3: Mute;
 #X text 615 300 F4: Metronome;
+#X obj 9 149 Raptor5;
+#X obj 9 270 Raptor5;
 #X connect 0 0 2 0;
-#X connect 1 0 10 0;
-#X connect 3 0 11 0;
+#X connect 1 0 12 0;
+#X connect 3 0 13 0;

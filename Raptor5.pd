@@ -1,4 +1,4 @@
-#N canvas 287 240 680 417 12;
+#N canvas 285 244 680 417 12;
 #X obj 129 42 nbx 3 14 0 1e+37 0 0 \$0-upbeat \$0-upbeat Upbeat 0 -8
 0 12 -262144 -1 -1 0 256;
 #X obj 256 361 nbx 5 14 1 1e+37 0 0 \$0-tempo \$0-tempo BPM 0 -8 0
@@ -20,7 +20,7 @@
 -1 -1 1;
 #X text 263 220 Barlow;
 #X obj 15 218 nbx 5 14 0 1 0 0 \$0-min-harm \$0-min-harm Min 0 -8 0
-12 -262144 -1 -1 0.11 256;
+12 -262144 -1 -1 0.12 256;
 #X obj 82 218 nbx 5 14 0 1 0 0 \$0-max-harm \$0-max-harm Max 0 -8 0
 12 -262144 -1 -1 1 256;
 #X obj 150 218 nbx 5 14 -1 1 0 0 \$0-harm-bias \$0-harm-bias Bias 0
@@ -84,18 +84,18 @@ empty 0 -8 0 12 -262144 -1 -1 0 256;
 #X text 354 133 Step Width;
 #X text 354 156 Probability;
 #X text 354 180 Density;
-#X symbolatom 256 328 14 0 0 2 Meter #0-meter-r #0-meter, f 14;
-#X symbolatom 14 42 14 0 0 0 - #0-pulses-r #0-pulses, f 14;
+#X symbolatom 256 328 14 0 0 2 Meter #0-meter-r #0-meter;
+#X symbolatom 14 42 14 0 0 0 - #0-pulses-r #0-pulses;
 #X text 13 27 Pulse Filter;
 #X text 354 204 Duration Quantizer;
 #X obj 355 227 vradio 15 1 0 2 \$0-quant-mode \$0-quant-mode empty
 0 -8 0 10 -262144 -1 -1 0;
 #X text 380 228 Delta;
 #X text 380 244 Values;
-#X symbolatom 449 245 14 0 0 0 - #0-dur-vals-r #0-dur-vals, f 14;
+#X symbolatom 449 245 14 0 0 0 - #0-dur-vals-r #0-dur-vals;
 #X obj 449 227 nbx 5 14 1 192 0 0 \$0-delta \$0-delta empty 0 -8 0
 12 -262144 -1 -1 24 256;
-#X symbolatom 450 277 14 0 0 2 - #0-scale-r #0-scale, f 14;
+#X symbolatom 450 277 14 0 0 2 - #0-scale-r #0-scale;
 #X obj 517 202 tgl 15 0 \$0-limit \$0-limit Limit 17 7 0 12 -262144
 -1 -1 0 1;
 #X obj 589 202 tgl 15 0 \$0-unique \$0-unique Unique 17 7 0 12 -262144
@@ -108,7 +108,7 @@ empty 0 -8 0 12 -262144 -1 -1 0 256;
 -225271 -1 -1;
 #X obj 332 389 bng 15 250 50 0 \$0-stop \$0-stop Stop 17 7 0 12 -261689
 -1 -1;
-#X symbolatom 4 389 14 0 0 0 - #0-preset-r #0-preset, f 14;
+#X symbolatom 4 389 14 0 0 0 - #0-preset-r #0-preset;
 #X obj 110 389 bng 15 250 50 0 \$0-load \$0-load Load 17 7 0 12 -262144
 -1 -1;
 #X obj 4 361 nbx 3 14 -1 16 0 0 \$0-in-chan \$0-in-chan In 0 -8 0 12
@@ -481,7 +481,7 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X connect 1 0 3 0;
 #X connect 2 0 0 0;
 #X restore 7 58 pd load-preset;
-#X symbolatom 154 111 20 0 0 0 - #0-preset-file -, f 20;
+#X symbolatom 154 111 20 0 0 0 - #0-preset-file -;
 #X obj 7 105 r \$0-save-as;
 #X obj 154 38 r \$0-save;
 #X obj 154 61 s \$0-preset-file;
@@ -839,7 +839,7 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X connect 4 0 6 0;
 #X connect 4 1 5 0;
 #X restore 77 448 pd note-input;
-#N canvas 377 300 450 300 control-output 0;
+#N canvas 376 302 450 300 control-output 0;
 #X obj 24 62 r \$0-ctl1;
 #X obj 33 88 r \$0-ctl2;
 #X obj 42 113 r \$0-ctl3;
@@ -1109,6 +1109,12 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X text 467 355 (c) 2008 by Albert Graef;
 #X obj 4 321 cnv 15 40 20 empty empty Raptor5 0 10 0 10 -203904 -66577
 0;
+#X obj 546 448 ctlin 7;
+#X floatatom 546 473 5 0 0 0 - - -;
+#X obj 546 497 s \$0-ctl2;
+#X text 504 425 vol is wired through;
 #X connect 114 0 113 0;
 #X connect 119 0 120 0;
+#X connect 127 0 128 0;
+#X connect 128 0 129 0;
 #X coords 0 -1 1 1 450 100 2 0 310;
