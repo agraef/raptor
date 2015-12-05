@@ -1,7 +1,7 @@
 #N canvas 474 276 743 382 12;
 #X obj 9 9 r upper;
 #X obj 9 130 r lower;
-#X obj 9 28 Rap;
+#X obj 9 28 Raptor5;
 #X obj 9 251 r lead;
 #N canvas 426 159 740 370 harm-sweep 0;
 #X obj 11 65 nbx 5 14 0 1 0 0 min-harm min-harm from 0 -8 0 12 -262144
@@ -393,8 +393,8 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X text 462 332 F9: Start/Stop;
 #X text 463 348 Up/Down \, PgUp/PgDn: Harmonicity sweep;
 #X text 615 316 F5: Hold;
-#X obj 9 149 Rap;
-#X obj 9 270 Rap;
+#X obj 9 149 Raptor5;
+#X obj 9 270 Raptor5;
 #X text 462 299 F1 \, F2 \, F3: Mute;
 #X text 615 300 F4: Metronome;
 #X connect 0 0 2 0;

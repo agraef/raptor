@@ -1107,6 +1107,8 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X text 222 420 external control inlet;
 #X text 313 504 unfinished stuff;
 #X text 467 355 (c) 2008 by Albert Graef;
+#X obj 4 321 cnv 15 40 20 empty empty Raptor5 0 10 0 10 -203904 -66577
+0;
 #X connect 114 0 113 0;
 #X connect 119 0 120 0;
-#X coords 0 -1 1 1 450 100 1 0 310;
+#X coords 0 -1 1 1 450 100 2 0 310;
