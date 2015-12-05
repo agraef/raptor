@@ -17,7 +17,7 @@
 #X obj 92 130 nbx 5 14 0 1e+37 0 0 pref-time pref-time sweep-time 0
 -8 0 12 -262144 -1 -1 10 256;
 #X obj 9 165 vradio 15 1 0 3 harm-sweep harm-sweep harm-sweep 0 -8
-0 12 -262144 -1 -1 1;
+0 12 -262144 -1 -1 2;
 #X text 30 195 stop;
 #X text 31 163 up;
 #X text 30 180 down;
@@ -128,7 +128,7 @@
 #X text 196 180 down;
 #X obj 11 243 r both-sweep;
 #X obj 11 35 nbx 5 14 0 1 0 0 empty harm-display min-harm 0 -8 0 12
--262144 -1 -1 0 256;
+-262144 -1 -1 0.12 256;
 #X obj 93 36 nbx 5 14 -1 1 0 0 empty pref-display pref 0 -8 0 12 -262144
 -1 -1 0.8 256;
 #X obj 286 263 s harm-display;
@@ -291,6 +291,8 @@ presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X obj 145 557 pure f with f (x@_ y) = () if last (split "/" x) ===
 "z" \; f x = x end;
 #X text 313 574 get rid of touch messages;
+#X text 668 35 Remote control:;
+#X obj 664 62 pure-remote;
 #X connect 0 0 3 0;
 #X connect 1 0 3 0;
 #X connect 2 0 3 0;
