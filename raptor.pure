@@ -4,7 +4,7 @@
 using dict, math, system;
 using hrm, indisp;
 
-nonfix start stop reset bang;
+nonfix start stop reset bang send_preset;
 public note min_note max_note min_vel max_vel base scale vel_bias
   min_dur max_dur dur_bias quant_mode delta dur_vals min_shift max_shift
   shift_bias min_step max_step step_bias min_prob max_prob prob_bias
@@ -727,29 +727,38 @@ liststr x	= join "-" $ map str x;
 /* Read and write preset files. NOTE: Alas, at present this isn't compatible
    with Raptor4 presets. */
 
-read_preset id x::string =
+format_preset data =
 // Translate the preset to a list of corresponding control messages.
-(filter ignorep $ zipwith ($)
- [base, scale,
-  min_note, max_note,
-  min_vel, max_vel, vel_bias,
-  min_dur, max_dur, dur_bias,
-  quant_mode, delta, dur_vals,
-  min_shift, max_shift, shift_bias,
-  min_step, max_step, step_bias,
-  min_prob, max_prob, prob_bias,
-  max_notes, max_notes_bias,
-  meter, upbeat, tempo, timebase, division,
-  pulses, step_mode, metronome,
-  ostinato, period,
-  hrm, min_harm, max_harm, harm_bias,
-  pref, pref_bias, trace,
-  limit, unique, ignore/*hold*/, mute,
-  pitch_tracker, vel_tracker,
-  arg1, arg2, arg3, arg4,
-  in_chan, out_chan,
-  ctl1, ctl2, ctl3, ctl4,
-  ctl5, ctl6, ctl7] data) +
+filter ignorep $ zipwith ($)
+[base, scale,
+ min_note, max_note,
+ min_vel, max_vel, vel_bias,
+ min_dur, max_dur, dur_bias,
+ quant_mode, delta, dur_vals,
+ min_shift, max_shift, shift_bias,
+ min_step, max_step, step_bias,
+ min_prob, max_prob, prob_bias,
+ max_notes, max_notes_bias,
+ meter, upbeat, tempo, timebase, division,
+ pulses, step_mode, metronome,
+ ostinato, period,
+ hrm, min_harm, max_harm, harm_bias,
+ pref, pref_bias, trace,
+ limit, unique, ignore/*hold*/, mute,
+ pitch_tracker, vel_tracker,
+ arg1, arg2, arg3, arg4,
+ in_chan, out_chan,
+ ctl1, ctl2, ctl3, ctl4,
+ ctl5, ctl6, ctl7] data
+with
+  /* Quick hack to ignore the hold flags which are stored in presets but
+     not set when loading. */
+  ignorep (ignore _) = false;
+  ignorep _ = true otherwise;
+end;
+
+read_preset id x::string =
+format_preset data +
 // Add the preset file and name, so that these are set in the GUI.
 [preset_file x,preset_name y]
 when
@@ -759,15 +768,10 @@ when path = split "/" x; root = head path; name = last path;
   x = if index name "." >= 0 then x else x+".raptor";
   x = if null root then x else pd_getdir+"/"+x;
   fp = fopen x "r"; data = val $ fget fp;
-end with
-  /* Quick hack to ignore the hold flags which are stored in presets but
-     not set when loading. */
-  ignorep (ignore _) = false;
-  ignorep _ = true otherwise;
 end;
 
-write_preset id x::string =
-flip fputs fp $ str
+get_preset id =
+// Get the current preset data
 [getref id BASE, liststr (getref id SCALE),
  getref id MIN_NOTE, getref id MAX_NOTE,
  getref id MIN_VEL, getref id MAX_VEL, getref id VEL_BIAS,
@@ -790,7 +794,10 @@ flip fputs fp $ str
  getref id ARG1, getref id ARG2, getref id ARG3, getref id ARG4,
  getref id IN_CHAN, getref id OUT_CHAN,
  getref id CTL1, getref id CTL2, getref id CTL3, getref id CTL4,
- getref id CTL5, getref id CTL6, getref id CTL7] $$
+ getref id CTL5, getref id CTL6, getref id CTL7];
+
+write_preset id x::string =
+flip fputs fp $ str $ get_preset id $$
 // Return the preset file and name as control messages.
 [preset_file x,preset_name y]
 when
@@ -801,6 +808,9 @@ when path = split "/" x; root = head path; name = last path;
   x = if null root then x else pd_getdir+"/"+x;
   fp = fopen x "w";
 end;
+
+// Send the current state of the preset as a list of control messages.
+query_preset id = format_preset $ get_preset id;
 
 /* Pd interface. The creation argument is the id of the Raptor instance, which
    must be an integer. The inlet receives messages to set control parameters,
@@ -984,6 +994,12 @@ process (ctl7 x::double)
 		= putref id CTL7 (int x);
 
 /* Preset management. */
+
+process send_preset
+		= smatrix (map (1,) x)
+		  if listp x when x = query_preset id end;
+process send_preset
+		= pd_error_s $ sprintf "raptor: error sending preset";
 
 process (load_preset x::string)
 		= smatrix (map (1,) x)
