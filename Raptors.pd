@@ -1,4 +1,4 @@
-#N canvas 333 148 709 464 12;
+#N canvas 333 148 709 430 12;
 #X declare -lib raptor;
 #X declare -lib raptor;
 #X declare -lib raptor;
@@ -16,12 +16,12 @@
 #X obj 92 130 nbx 5 14 0 1e+37 0 0 pref-time pref-time sweep-time 0
 -8 0 12 -262144 -1 -1 3 256 0;
 #X obj 9 165 vradio 15 1 0 3 harm-sweep harm-sweep harm-sweep 0 -8
-0 12 -262144 -1 -1 1;
+0 12 -262144 -1 -1 0;
 #X text 30 195 stop;
 #X text 31 163 up;
 #X text 30 180 down;
 #X obj 93 166 vradio 15 1 0 3 pref-sweep pref-sweep pref-sweep 0 -8
-0 12 -262144 -1 -1 1;
+0 12 -262144 -1 -1 0;
 #X text 117 195 stop;
 #X text 118 163 up;
 #X text 117 180 down;
@@ -121,15 +121,15 @@
 #X obj 651 80 r max-pref;
 #X obj 262 15 loadbang;
 #X obj 172 166 vradio 15 1 0 3 both-sweep both-sweep both 0 -8 0 12
--262144 -1 -1 1;
+-262144 -1 -1 0;
 #X text 196 195 stop;
 #X text 197 163 up;
 #X text 196 180 down;
 #X obj 11 243 r both-sweep;
 #X obj 11 35 nbx 5 14 0 1 0 0 empty harm-display min-harm 0 -8 0 12
--262144 -1 -1 0.04 256 0;
+-262144 -1 -1 0.12 256 0;
 #X obj 93 36 nbx 5 14 -1 1 0 0 empty pref-display pref 0 -8 0 12 -262144
--1 -1 -0.8 256 0;
+-1 -1 0.8 256 0;
 #X obj 286 263 s harm-display;
 #X obj 642 262 s pref-display;
 #X obj 11 268 s harm-sweep;
@@ -345,26 +345,15 @@ KP_Next KP_Right;
 #X obj 203 340 swap 1;
 #X obj 203 365 -;
 #N canvas 70 131 561 476 presets 0;
-#X msg 346 17 \; upper load_preset presets/arp.raptor \; lower load_preset
-presets/bass.raptor \; lead load_preset presets/piano.raptor;
-#X msg 346 90 \; upper load_preset presets/3/arp.raptor \; lower load_preset
-presets/3/bass.raptor \; lead load_preset presets/3/vibes.raptor;
 #X obj 216 -36 inlet;
 #X obj 216 78 f;
 #X obj 144 77 r reload;
 #X obj 216 103 + 1;
 #X floatatom 216 153 5 0 0 0 - - -, f 5;
-#X msg 346 164 \; upper load_preset presets/3/arp.raptor \; lower load_preset
-presets/3/bass.raptor \; lead load_preset presets/3/guitar.raptor;
-#X msg 346 235 \; upper load_preset presets/3/arp.raptor \; lower load_preset
-presets/3/bass.raptor \; lead load_preset presets/3/shred.raptor;
 #X obj 216 -11 sel bang;
 #X msg 216 14 1;
 #X obj 216 39 t b f;
-#X obj 346 -31 sel 0 1 2 3 4;
 #X obj 216 128 mod 5;
-#X msg 346 306 \; upper load_preset presets/3/arp.raptor \; lower load_preset
-presets/3/bass.raptor \; lead load_preset presets/3/storm.raptor;
 #X obj 104 202 sel 0 1 2 3 4;
 #X msg 104 227 /Presets/1/1 1;
 #X obj 137 359 s osc-output;
@@ -377,40 +366,39 @@ presets/3/bass.raptor \; lead load_preset presets/3/storm.raptor;
 #X obj 104 151 f;
 #X obj 101 52 s allparts;
 #X obj 101 -9 t b b;
-#X connect 2 0 9 0;
-#X connect 3 0 5 0;
-#X connect 4 0 6 0;
-#X connect 5 0 13 0;
-#X connect 6 0 3 1;
-#X connect 6 0 12 0;
-#X connect 6 0 15 0;
-#X connect 6 0 24 1;
+#X obj 216 177 s preset-no;
+#X obj 25 115 r preset-no-s;
+#X connect 0 0 5 0;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 8 0;
+#X connect 4 0 1 1;
+#X connect 4 0 9 0;
+#X connect 4 0 18 1;
+#X connect 4 0 21 0;
+#X connect 5 0 6 0;
+#X connect 5 1 7 0;
+#X connect 6 0 7 0;
+#X connect 7 0 1 0;
+#X connect 7 1 3 1;
+#X connect 8 0 4 0;
 #X connect 9 0 10 0;
-#X connect 9 1 11 0;
+#X connect 9 1 12 0;
+#X connect 9 2 13 0;
+#X connect 9 3 14 0;
+#X connect 9 4 15 0;
 #X connect 10 0 11 0;
-#X connect 11 0 3 0;
-#X connect 11 1 5 1;
-#X connect 12 0 0 0;
-#X connect 12 1 1 0;
-#X connect 12 2 7 0;
-#X connect 12 3 8 0;
-#X connect 12 4 14 0;
-#X connect 13 0 6 0;
-#X connect 15 0 16 0;
-#X connect 15 1 18 0;
-#X connect 15 2 19 0;
-#X connect 15 3 20 0;
-#X connect 15 4 21 0;
-#X connect 16 0 17 0;
-#X connect 18 0 17 0;
-#X connect 19 0 17 0;
+#X connect 12 0 11 0;
+#X connect 13 0 11 0;
+#X connect 14 0 11 0;
+#X connect 15 0 11 0;
+#X connect 16 0 20 0;
+#X connect 17 0 19 0;
+#X connect 18 0 9 0;
 #X connect 20 0 17 0;
-#X connect 21 0 17 0;
-#X connect 22 0 26 0;
-#X connect 23 0 25 0;
-#X connect 24 0 15 0;
-#X connect 26 0 23 0;
-#X connect 26 1 24 0;
+#X connect 20 1 18 0;
+#X connect 22 0 1 1;
+#X connect 22 0 18 0;
 #X restore 51 277 pd presets;
 #X obj 273 316 f;
 #X obj 273 341 swap 1;
@@ -688,21 +676,20 @@ up.;
 #X connect 116 0 109 0;
 #X coords 0 -1 1 1 240 40 1 0 0;
 #X restore 462 10 pd controls;
-#X text 210 400 F8: Switch presets;
-#X text 210 416 F9: Start/Stop;
-#X text 363 400 F5: Hold;
-#X text 210 383 F1 \, F2 \, F3: Mute;
-#X text 362 382 F4: Metronome;
+#X text 210 388 F8: Switch presets;
+#X text 210 404 F9: Start/Stop;
+#X text 363 388 F5: Hold;
+#X text 210 371 F1 \, F2 \, F3: Mute;
+#X text 362 370 F4: Metronome;
 #X obj 9 10 Raptor5 upper;
 #X obj 9 130 Raptor5 lower;
-#X text 322 417 Keypad: Harm. sweep;
-#X obj 12 397 cnv 15 192 28 empty empty Raptor5\ 3-Part\ Demo 11 12
+#X text 322 405 Keypad: Harm. sweep;
+#X obj 9 369 cnv 15 192 28 empty empty Raptor5\ 3-Part\ Demo 11 12
 1 18 -191407 -1 0;
 #X obj 9 250 Raptor5 lead;
 #X msg 481 300 disconnect;
 #X obj 481 325 oscbrowser 8000;
 #X msg 481 280 connect 255.255.255.255 9000;
-#X obj 491 426 cnv 15 192 28 empty empty OSC\ Control\ Panel 15 12
-1 18 -191407 -1 0;
+#X obj 12 401 raptor-preset;
 #X connect 12 0 13 0;
 #X connect 14 0 13 0;
