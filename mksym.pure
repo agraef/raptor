@@ -4,6 +4,7 @@
 
 using system;
 
+#! --required mksym
 mksym id f::string
 		= sprintf "%d-%s" (id,f);
 mksym id f	= sprintf "%d-%s" (id,join "-" (split "_" $ str f));

@@ -2,6 +2,12 @@
 /* Determine the prime factors of an integer. The result is a list with the
    prime factors in non-decreasing order. */
 
+factor_from p n	  = [] if p>n;
+		  = p : factor_from p (n div p)
+		    if n mod p == 0; // p divides n (must be prime)
+		  = factor_from (p+2) n
+		    otherwise; // not a factor, try the next one
+
 factor 0	  |
 factor 0L	  = [];
 
@@ -12,12 +18,6 @@ factor n::int	  = factor (-n) if n<0;
 factor n::bigint  = factor (-n) if n<0;
 		  = 2L : factor (n div 2) if n mod 2 == 0; // even number
 		  = factor_from 3L n otherwise;
-
-factor_from p n	  = [] if p>n;
-		  = p : factor_from p (n div p)
-		    if n mod p == 0; // p divides n (must be prime)
-		  = factor_from (p+2) n
-		    otherwise; // not a factor, try the next one
 
 /* Collect the factors and return them as a list of pairs (p,k) where p are
    the prime factors in ascending order and k the corresponding (nonzero)

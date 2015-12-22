@@ -1,6 +1,7 @@
 
 /* Helper object to convert actual time in msecs to ticks. */
 
+#! --required ms2ticks
 public ms2ticks;
 
 namespace raptor;

@@ -1,4 +1,5 @@
-#N canvas 226 207 728 432 12;
+#N canvas 383 103 728 432 12;
+#X declare -lib raptor;
 #X obj 129 44 nbx 3 14 0 1e+37 0 0 \$0-upbeat \$0-upbeat Upbeat 0 -8
 0 12 -262144 -1 -1 0 256 0;
 #X obj 256 361 nbx 5 14 1 1e+37 0 0 \$0-tempo \$0-tempo BPM 0 -8 0

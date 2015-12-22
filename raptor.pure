@@ -14,7 +14,18 @@ public note min_note max_note min_vel max_vel base scale vel_bias
   arg1 arg2 arg3 arg4 in_chan out_chan ctl1 ctl2 ctl3 ctl4 ctl5 ctl6 ctl7
   preset_file preset_name hold load_preset save_preset tick ignore;
 
+#! --required raptor
 public raptor;
+
+// Check whether we're hosted by Pd.
+stringp (eval "extern char *pd_version_s(); pd_version_s;") &&
+eval "#! --enable pd\n";
+
+#! --ifndef pd
+// Stubs provided so that we can run the objects outside Pd (during batch
+// compilation, in particular).
+using "lib:pdstub";
+#! --endif
 
 extern void pd_error_s(char *s);
 extern expr *pd_getdir();

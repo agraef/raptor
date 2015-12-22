@@ -55,6 +55,7 @@ euler2 p	= if p==2 then 0 else euler p;
      pitches, i.e., the disharmonicity of the interval between (p1,q1) and
      (p2,q2). */
 
+public hrm_dist;
 hrm pv (p,q)	= foldl (+) 0 [abs k*pv p | (p,k) = factors (p,q)];
 hrm pv S	= {hrm_dist pv s t | s = S; t = S};
 hrm_dist pv (p1,q1) (p2,q2)
