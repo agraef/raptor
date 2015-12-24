@@ -2,8 +2,8 @@
 #X msg 118 160 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/piano.raptor;
 #X obj 118 104 sel 0 1 2 3 4;
-#X obj 118 73 hradio 15 1 0 5 preset-no-s preset-no empty 0 -8 0 10
--191407 -1 -1 4;
+#X obj 118 73 hradio 15 1 0 5 reinit preset-no empty 0 -8 0 10 -191407
+-1 -1 0;
 #X msg 118 245 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/vibes.raptor;
 #X msg 118 332 \; upper load_preset presets/arp.raptor \; lower load_preset
