@@ -27,6 +27,7 @@ eval "#! --enable pd\n";
 using "lib:pdstub";
 #! --endif
 
+extern void pd_post(char *s);
 extern void pd_error_s(char *s);
 extern expr *pd_getdir();
 
@@ -782,9 +783,10 @@ get_preset id =
  getref id MIN_STEP, getref id MAX_STEP, getref id STEP_BIAS,
  getref id MIN_PROB, getref id MAX_PROB, getref id PROB_BIAS,
  getref id MAX_NOTES, getref id MAX_NOTES_BIAS,
- liststr (getref id METER), getref id UPBEAT,
- getref id TEMPO, getref id TIMEBASE, getref id DIVISION,
- liststr (getref id PULSES), getref id STEP_MODE, getref id METRONOME,
+ liststr (getref2 id METER NEXT_METER), getref id UPBEAT,
+ getref2 id TEMPO NEXT_TEMPO, getref2 id TIMEBASE NEXT_TIMEBASE,
+ getref id DIVISION, liststr (getref id PULSES),
+ getref id STEP_MODE, getref id METRONOME,
  getref id OSTINATO, getref id PERIOD,
  getref id HRM, getref id MIN_HARM, getref id MAX_HARM, getref id HARM_BIAS,
  getref id PREF, getref id PREF_BIAS, getref id TRACE,
@@ -794,7 +796,14 @@ get_preset id =
  getref id ARG1, getref id ARG2, getref id ARG3, getref id ARG4,
  getref id IN_CHAN, getref id OUT_CHAN,
  getref id CTL1, getref id CTL2, getref id CTL3, getref id CTL4,
- getref id CTL5, getref id CTL6, getref id CTL7];
+ getref id CTL5, getref id CTL6, getref id CTL7] with
+   // some controls need special treatment since their value may not have been
+   // set yet
+   getref2 id VAL NEXT_VAL = case getref id NEXT_VAL of
+     () = getref id VAL;
+     val = val;
+   end;
+ end;
 
 write_preset id x::string =
 flip fputs fp $ str $ get_preset id $$
