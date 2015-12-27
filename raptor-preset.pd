@@ -3,19 +3,19 @@
 presets/bass.raptor \; lead load_preset presets/piano.raptor;
 #X obj 118 104 sel 0 1 2 3 4;
 #X obj 118 73 hradio 15 1 0 5 reinit preset-no empty 0 -8 0 10 -191407
--1 -1 0;
-#X msg 118 245 \; upper load_preset presets/arp.raptor \; lower load_preset
+-1 -1 2;
+#X msg 118 406 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/vibes.raptor;
-#X msg 118 332 \; upper load_preset presets/arp.raptor \; lower load_preset
+#X msg 118 239 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/shred.raptor;
-#X msg 118 415 \; upper load_preset presets/arp.raptor \; lower load_preset
+#X msg 118 322 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/shred2.raptor;
-#X msg 118 497 \; upper load_preset presets/arp.raptor \; lower load_preset
-presets/bass.raptor \; lead load_preset presets/storm.raptor;
+#X msg 118 486 \; upper load_preset presets/arp.raptor \; lower load_preset
+presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X connect 1 0 0 0;
-#X connect 1 1 3 0;
-#X connect 1 2 4 0;
-#X connect 1 3 5 0;
+#X connect 1 1 4 0;
+#X connect 1 2 5 0;
+#X connect 1 3 3 0;
 #X connect 1 4 6 0;
 #X connect 2 0 1 0;
 #X coords 0 -1 1 1 187 20 1 8 71;
