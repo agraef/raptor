@@ -1,7 +1,8 @@
 *.o
 *.so
-*.dylib
+*.dylib*
 *.dll
 raptor-meta.pd
 raptor.pd_linux
 raptor.pd_darwin
+.DS_Store
