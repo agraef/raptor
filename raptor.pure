@@ -745,15 +745,15 @@ filter ignorep $ zipwith ($)
  ostinato, period,
  hrm, min_harm, max_harm, harm_bias,
  pref, pref_bias, trace,
- limit, unique, ignore/*hold*/, mute,
+ limit, unique, ignore/*hold*/, ignore/*mute*/,
  pitch_tracker, vel_tracker,
  arg1, arg2, arg3, arg4,
  in_chan, out_chan,
  ctl1, ctl2, ctl3, ctl4,
  ctl5, ctl6, ctl7] data
 with
-  /* Quick hack to ignore the hold flags which are stored in presets but
-     not set when loading. */
+  /* Quick hack to ignore the hold and mute flags which are stored in presets
+     but not set when loading. */
   ignorep (ignore _) = false;
   ignorep _ = true otherwise;
 end;
