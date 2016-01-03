@@ -60,9 +60,8 @@ controllers should work fine.
 
 - CC80: Start/Stop (alternative way to control transport state, see below)
 
-Note that CC64 (general purpose slider #1) and CC80 (general purpose
-button #1) are interpreted using standard MIDI button semantics, so a
-value >=64 means "on", <64 "off".
+Note that CC64 (hold) and CC80 (general purpose button #1) are interpreted
+using standard MIDI button semantics, so a value >=64 means "on", <64 "off".
 
 ## Transport
 
