@@ -1,12 +1,12 @@
-#N canvas 221 219 988 411 10;
-#X symbolatom 111 58 28 0 0 0 - #0-select #0-resolve, f 28;
-#X symbolatom 111 78 20 0 0 0 - #0-addr #0-addr-change, f 20;
-#X floatatom 257 78 7 0 0 0 - #0-port #0-port-change, f 7;
-#X obj 111 39 tgl 15 0 \$0-browser \$0-browser-r browse 17 7 0 10 -262144
+#N canvas 109 110 988 411 12;
+#X symbolatom 111 58 28 0 0 0 - #0-select #0-resolve;
+#X symbolatom 111 78 20 0 0 0 - #0-addr #0-addr-change;
+#X floatatom 257 78 7 0 0 0 - #0-port #0-port-change;
+#X obj 111 39 tgl 15 0 \$0-browser \$0-browser-r browse 17 7 0 12 -262144
 -1 -1 1 1;
-#X obj 223 39 bng 15 250 50 0 \$0-next empty next 17 7 0 10 -262144
+#X obj 223 39 bng 15 250 50 0 \$0-next empty next 17 7 0 12 -262144
 -1 -1;
-#X obj 270 39 bng 15 250 50 0 \$0-prev empty prev 17 7 0 10 -262144
+#X obj 270 39 bng 15 250 50 0 \$0-prev empty prev 17 7 0 12 -262144
 -1 -1;
 #X obj 213 257 unpack s f;
 #X obj 213 186 metro 500;
@@ -72,7 +72,7 @@
 #X msg 400 300 connect \$1 \$2;
 #X obj 514 310 outlet;
 #X text 462 338 output the chosen connection;
-#X obj 175 39 bng 15 250 50 0 \$0-conn empty conn 17 7 0 10 -262144
+#X obj 175 39 bng 15 250 50 0 \$0-conn empty conn 17 7 0 12 -262144
 -1 -1;
 #X msg 136 326 0;
 #X obj 136 305 r \$0-conn;
@@ -85,7 +85,7 @@
 #X obj 585 137 t a a;
 #X obj 715 161 print OSC output;
 #X obj 585 224 udpsend;
-#X obj 585 245 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 585 245 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X text 612 243 connected?;
 #X msg 667 207 disconnect;
@@ -100,11 +100,11 @@
 #X obj 863 153 outlet;
 #X text 852 184 output received OSC messages;
 #X obj 213 236 route connect disconnect;
-#X obj 111 99 tgl 15 0 empty \$0-connected conn? 17 7 0 10 -262144
--1 -1 1 1;
-#X obj 168 99 tgl 15 0 \$0-dump-in empty dump-in 17 7 0 10 -262144
+#X obj 111 99 tgl 15 0 empty \$0-connected conn? 17 7 0 12 -262144
 -1 -1 0 1;
-#X obj 239 99 tgl 15 0 \$0-dump-out empty dump-out 17 7 0 10 -262144
+#X obj 168 99 tgl 15 0 \$0-dump-in empty dump-in 17 7 0 12 -262144
+-1 -1 0 1;
+#X obj 239 99 tgl 15 0 \$0-dump-out empty dump-out 17 7 0 12 -262144
 -1 -1 0 1;
 #X obj 715 136 spigot;
 #X obj 748 101 r \$0-dump-out;
