@@ -1,6 +1,10 @@
 Raptor 5: The Random Arpeggiator
 ================================
 
+Albert Gräf <aggraef@gmail.com>  
+Computer Music Research Group  
+Johannes Gutenberg University (JGU) Mainz, Germany
+
 The Raptors.pd patch implements an experimental algorithmic composition
 arpeggiator program with 3 parts (i.e., 3 Raptor instances running in
 parallel, each with their own set of parameters). Open the corresponding
@@ -16,6 +20,35 @@ featuring keys, pads and rotary controllers, such as the Akai MPK mini, or
 more "classic" equipment like the Behringer FCB 1010 controller. (Note,
 however, that at present there's no MIDI controller feedback for controllers
 taking MIDI input, like the Behringer BCF2000.)
+
+The actual algorithmic core of Raptor is implemented as a Pd external written
+in Pure, see the raptor.pure program. Thus in addition to Miller Puckette's Pd
+you'll also need the author's Pure plugin loader for Pd (pd-pure) to run it.
+Any recent version and flavour of Pd will do; see <http://puredata.info/>. The
+author's Pure programming language and the pd-pure plugin loader can be found
+at <http://purelang.bitbucket.org/>. We also provide ready-made packages of
+pd-pure for Linux (Arch, Ubuntu and derivatives) and macOS (via [MacPorts][]),
+please refer to the link above for details. Mac users may also want to check
+the [Pure on Mac OS X][] wiki page for detailed instructions.
+
+[MacPorts]: http://www.macports.org/
+[Pure on Mac OS X]: https://bitbucket.org/purelang/pure-lang/wiki/PureOnMacOSX
+
+## Copying
+
+Copyright (c) 2005-2017 by Albert Gräf.
+
+Raptor is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+Raptor is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## Controller Assignments
 
