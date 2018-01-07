@@ -11,7 +11,8 @@ parallel, each with their own set of parameters). Open the corresponding
 subpatch for the GUI controls of all parameters of each part.
 
 A few sample presets can be found in the presets folder. Use the sample
-raptor-preset*.pd patches to switch between presets from the main patch.
+raptor-preset.pd patch to switch between presets from the main patch. This
+subpatch also has some controls to change meter and tempo.
 
 The patch accepts MIDI note input, as well as controller and system realtime
 messages for the most important controls as detailed below. The controller
@@ -26,7 +27,7 @@ in Pure, see the raptor.pure program. Thus in addition to Miller Puckette's Pd
 you'll also need the author's Pure plugin loader for Pd (pd-pure) to run it.
 Any recent version and flavour of Pd will do; see <http://puredata.info/>. The
 author's Pure programming language and the pd-pure plugin loader can be found
-at <http://purelang.bitbucket.org/>. We also provide ready-made packages of
+at <https://agraef.github.io/pure-lang/>. We also provide ready-made packages of
 pd-pure for Linux (Arch, Ubuntu and derivatives) and macOS (via [MacPorts][]),
 please refer to the link above for details. Mac users may also want to check
 the [Pure on Mac OS X][] wiki page for detailed instructions.
@@ -36,7 +37,7 @@ the [Pure on Mac OS X][] wiki page for detailed instructions.
 
 ## Copying
 
-Copyright (c) 2005-2017 by Albert Gräf.
+Copyright (c) 2005-2018 by Albert Gräf.
 
 Raptor is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -49,6 +50,86 @@ A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program.  If not, see <http://www.gnu.org/licenses/>.
+
+## Changing Presets, Tempo and Meter
+
+The main Raptors patch has a raptor-preset subpatch offering controls to
+change presets, meter and tempo in a convenient fashion.
+
+The preset-changing control is the radio button strip in the right upper
+corner of the subpatch. Simply click on one of the radio buttons to change the
+preset. This will affect all three parts. Note that currently the preset names
+for the different parts are hard-wired, so in order to change these you'll
+have to open the subpatch and edit the patch accordingly. Also note that once
+the patch has been loaded, switching presets will *not* affect the tempo and
+meter any more, so that these can be changed freely with the corresponding
+controls, see below. To force tempo and meter settings to be loaded from a
+preset, click the red button in the lower right corner of the subpatch and
+then choose the presets you want to load by clicking on the corresponding
+radio button as usual.
+
+The tempo (in BPM a.k.a. beats per minute) can be changed using the slider or
+the number entry widget in the bottom row of the subpatch. By default, in
+tempo calculations a "beat" is taken to mean a quarter note. The actual
+frequency of base pulses in the chosen meter is then $m/4$ times the BPM
+value, where $m$ is the denominator of the meter (see below).
+
+The meter can be changed with the three strips of radio buttons in the middle
+of the subpatch. The *green* strip changes the numerator, the *red* strip the
+denominator of the meter. In addition, the white strip allows you to change
+the number of subdivisions of the meter's base pulse in order to play tuplets
+(subdivisions in the range from 1 to 7 can be entered using the radio buttons).
+
+The meter is displayed in the symbol entry widget above the white strip of
+radio buttons, and can also be entered directly there. The format used by
+Raptor allows you to specify the meter using the customary $n/m$ notation
+where $n$ denotes the numerator (the number of base pulses making up a
+measure) and $m$ the denominator of the meter. The latter is usually a power
+of 2, but Raptor allows you to use any positive integer there which is useful
+when tuplets are the base pulse of the meter. Moreover, the numerator $n$ can
+also be specified in *stratified* form by explicitly listing the decomposition
+of the meter into different levels separated by dashes. E.g., 12/16 can also
+be specified as 4-3/16 or 2-2-3/16. Or you could write 6-2/16 or 2-3-2/16 to
+denote a 6/8 meter subdivided into 16th notes. Likewise, a 6/8 meter
+subdivided into triplets would be specified as 18/24, 6-3/24 or 2-3-3/24.
+
+The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
+stratified meter, Raptor does the stratification internally anyway, by
+decomposing the numerator into its prime factors in ascending order. Finally,
+if the denominator $m$ is omitted, Raptor chooses the power of 2 which is
+nearest to the numerator as a reasonable default, so that in most cases you
+can also just specify the (unstratified or stratified) numerator of the
+meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8, 12 becomes
+2-2-3/16, 2-3-2 becomes 2-3-2/16, etc.
+
+Note that the raptor-preset patch always changes tempo and meter for all
+Raptor parts simultaneously. However, it is also possible to change meter and
+tempo (and even the definition of a "beat") by changing the corresponding
+values in each individual Raptor part. This complicates things, but makes it
+possible to produce polyrhythms in Raptor.
+
+Also note that in the present implementation changing tempo and meter only
+takes effect at measure boundaries, so at present it is *not* possible to
+change tempo and meter at some arbitrary point inside a measure. This is a
+very fundamental limitation of Raptor's design, so don't expect this to change
+anytime soon. However, it is usually possible to work around this limitation
+by using shorter measures with the appropriate meter and tempo changes. (This
+can become difficult to control in real-time, though, so you'll want to use
+DAW as time master to automatize the meter and tempo changes in such cases.)
+
+## Editing Presets
+
+You can click the Edit button in each of the three Raptor parts to open the
+corresponding subpatch, which will give you a bunch of additional control
+parameters which can be changed to affect Raptor's operation. (A more detailed
+description of the parameters is beyond the scope of this document, so we
+refer the reader to the raptor.pure script instead.)
+
+Once you have changed the parameters to your liking, you can close the
+subpatch and click the Save button to write your changes to the corresponding
+preset file. You can also use the SaveAs button if you want to save the
+settings in a new preset file instead, or use the Load button to load a
+different preset file.
 
 ## Controller Assignments
 
@@ -222,18 +303,22 @@ value to zero in the presets that you use.
 - The ostinato feature of Raptor 4 isn't implemented yet. Did this ever work?
   I don't remember. ;-)
 
-- At present you have to change or replace the raptor-preset subpatch in the
-  main Raptor patch to switch between different "banks" (preset collections).
-  This really needs to be replaced with a more generic system which allows
-  switching between banks more easily (maybe also through a MIDI controller).
+- At present you have to change the raptor-preset subpatch in the main Raptor
+  patch to switch between different "banks" (preset collections). This really
+  needs to be replaced with a more generic system which allows switching
+  between banks more easily (maybe also through a MIDI controller).
 
-- Currently it's not possible to change tempo and timebase on the fly inside a
-  measure. If Raptor is running and you change tempo, meter, division etc.,
-  it will only take effect *after* the current measure. This also affects
+- The meter and tempo controls in the raptor-preset subpatch need to be
+  documented. Also, a MIDI mapping for these controls should be added so that
+  it becomes easier to change these parameters on the fly.
+
+- Currently it's not possible to change tempo and timebase inside a measure.
+  If Raptor is running and you change tempo, meter, division etc., it will
+  only take effect *after* the current measure. This also affects
   tempo/timebase changes initiated by changing presets.
 
 - SPP (song position pointer) and tempo sync through MIDI clock messages
-  aren't supported yet. Thus, when driving Raptor from a DAW, you have to make
+  aren't supported. Thus, when driving Raptor from a DAW, you have to make
   sure that both the DAW and Raptor are set to the same tempo, and that the
   DAW starts off at the beginning of a measure. Tempo and meter changes during
   playback are possible, but only at measure boundaries. (For the time being,
@@ -241,3 +326,8 @@ value to zero in the presets that you use.
   your performance including the accompaniment generated by Raptor, and then
   use the DAW's facilities to adjust the tempo for certain sections of the
   performance.)
+
+- Adding support for Jack transport would make it possible to synchronize
+  Raptor's playback, meter and tempo with DAWs like Ardour. This should be
+  possible using the author's pd-jacktime external, but hasn't been
+  implemented yet.
