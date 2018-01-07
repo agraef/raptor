@@ -33,7 +33,7 @@ please refer to the link above for details. Mac users may also want to check
 the [Pure on Mac OS X][] wiki page for detailed instructions.
 
 [MacPorts]: http://www.macports.org/
-[Pure on Mac OS X]: https://bitbucket.org/purelang/pure-lang/wiki/PureOnMacOSX
+[Pure on Mac OS X]: https://github.com/agraef/pure-lang/wiki/PureOnMacOSX
 
 ## Copying
 
