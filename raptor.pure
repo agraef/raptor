@@ -2,9 +2,9 @@
 /* raptor.pure: the random arpeggiator (Pd version) */
 
 using dict, math, system;
-using hrm, indisp;
+using factor, hrm, indisp;
 
-nonfix start stop reset bang send_preset;
+nonfix start stop reset bang init_preset send_preset;
 public note min_note max_note min_vel max_vel base scale vel_bias
   min_dur max_dur dur_bias quant_mode delta dur_vals min_shift max_shift
   shift_bias min_step max_step step_bias min_prob max_prob prob_bias
@@ -87,7 +87,7 @@ getref id x	= printf "bad getref: %s %s\n" (str id,str x) $$ ();
 
 /* The control parameters. */
 
-private BASE SCALE MIN_NOTE MAX_NOTE MIN_VEL MAX_VEL VEL_BIAS
+private FIRST_INIT BASE SCALE MIN_NOTE MAX_NOTE MIN_VEL MAX_VEL VEL_BIAS
   MIN_DUR MAX_DUR DUR_BIAS QUANT_MODE DELTA DUR_VALS
   MIN_SHIFT MAX_SHIFT SHIFT_BIAS MIN_STEP MAX_STEP STEP_BIAS
   MIN_PROB MAX_PROB PROB_BIAS MAX_NOTES MAX_NOTES_BIAS METER
@@ -97,6 +97,7 @@ private BASE SCALE MIN_NOTE MAX_NOTE MIN_VEL MAX_VEL VEL_BIAS
   ARG1 ARG2 ARG3 ARG4 IN_CHAN OUT_CHAN CTL1 CTL2 CTL3 CTL4 CTL5 CTL6 CTL7
   NEXT_METER NEXT_TEMPO NEXT_TIMEBASE IN_CACHE OUT_CACHE DIR ARP_CACHE VELS;
 
+let FIRST_INIT = idref true;
 let BASE = idref 0;
 let SCALE = idref (0,[]);
 let MIN_NOTE = idref 36;
@@ -121,7 +122,7 @@ let MAX_PROB = idref 1.0;
 let PROB_BIAS = idref 1.0;
 let MAX_NOTES = idref 5;
 let MAX_NOTES_BIAS = idref 0.0;
-let METER = idref [2,2];
+let METER = idref ([2,2],4);
 let INDISP = idref (indisp [2,2]);
 let NPULSES = idref (foldl (*) 1 [2,2]);
 let UPBEAT = idref 0;
@@ -567,7 +568,23 @@ metronome_tick id m w
 		    when k = min m (getref id METRONOME) end;
 		= 127 otherwise;
 
-/* Handle meter and tempo changes. */
+/* Handle meter and tempo changes. Note that a meter consists of a prime list
+   (the factorized number of pulses, numerator of the meter in stratified
+   form) and an optional timebase (denominator of the meter, typically a power
+   of 2, but we allow any positive integer). If the timebase isn't specified,
+   we assume a reasonable default (currently the power of 2 nearest to the
+   numerator). */
+
+private meterp get_meter get_meter_base;
+meterp (x,k) = listp x && intp k && k>0;
+meterp x = listp x otherwise;
+get_meter (x,k) = x;
+get_meter x = x otherwise;
+get_meter_base (x,k) = k;
+get_meter_base x = np2 (foldl (*) 1 x) with
+  np2 x = int (2^(round (lg2 x)));
+  lg2 x = ln x / ln 2;
+end;
 
 private update_meter;
 update_meter id	= () when
@@ -576,11 +593,16 @@ update_meter id	= () when
   update_timebase id (getref id NEXT_TIMEBASE);
 end with
   update_meter id x = () when
+    old_npulses = foldl (*) 1 (getref id METER);
     putref id METER x;
+    x = get_meter x; npulses = foldl (*) 1 x;
     putref id INDISP (indisp x);
-    putref id NPULSES (foldl (*) 1 x);
+    putref id NPULSES npulses;
     putref id NEXT_METER ();
-  end if listp x && x ~= getref id METER;
+    // adjust the metronome on the fly if appropriate
+    getref id METRONOME > 0 && npulses ~== old_npulses &&
+    putref id METRONOME (npulses div 2 + 1);
+  end if meterp x && x ~== getref id METER;
   update_tempo id x = () when
     putref id TEMPO x; putref id NEXT_TEMPO ();
   end if realp x && x ~= getref id TEMPO;
@@ -719,47 +741,74 @@ splitlist2 x::string
 		    [x,k] = (k,splitlist x) if intp k when k = val k end;
 		    _ = (0,splitlist x);
 		  end;
+/* NB: A meter specification consists of a numerator and an optional
+   denominator in the format n/m. The numerator consists of a sequence of
+   positive integers separated with a dash. If necessary, these are
+   automatically decomposed into their prime factors in ascending order to
+   produce the stratified meter. Thus, e.g., 12/16 automatically becomes
+   2-2-3/16. If the denominator isn't specified, the algorithm assumes a
+   reasonable default (see get_meter_base above). */
+splitmeter x::string
+		= case split "/" x of
+		    [x,k] = (catmap f (splitlist x),k) if intp k
+		    when k = val k end;
+		    _ = catmap f (splitlist x);
+		  end with
+		    f x::int = factor x;
+		    f x = [x] otherwise;
+		  end;
 
 liststr (0,x)	= join "-" $ map str x;
 liststr (k::int,x)
 		= join "-" (map str x) + sprintf "/%d" k;
 liststr x	= join "-" $ map str x;
+meterstr (x,k::int)
+		= join "-" (map str x) + sprintf "/%d" k;
+meterstr x	= join "-" $ map str x;
 
 /* Read and write preset files. NOTE: Alas, at present this isn't compatible
    with Raptor4 presets. */
 
-format_preset data =
-// Translate the preset to a list of corresponding control messages.
-filter ignorep $ zipwith ($)
-[base, scale,
- min_note, max_note,
- min_vel, max_vel, vel_bias,
- min_dur, max_dur, dur_bias,
- quant_mode, delta, dur_vals,
- min_shift, max_shift, shift_bias,
- min_step, max_step, step_bias,
- min_prob, max_prob, prob_bias,
- max_notes, max_notes_bias,
- meter, upbeat, tempo, timebase, division,
- pulses, step_mode, metronome,
- ostinato, period,
- hrm, min_harm, max_harm, harm_bias,
- pref, pref_bias, trace,
- limit, unique, ignore/*hold*/, ignore/*mute*/,
- pitch_tracker, vel_tracker,
- arg1, arg2, arg3, arg4,
- in_chan, out_chan,
- ctl1, ctl2, ctl3, ctl4,
- ctl5, ctl6, ctl7] data
-with
-  /* Quick hack to ignore the hold and mute flags which are stored in presets
-     but not set when loading. */
-  ignorep (ignore _) = false;
+format_preset id data = res when
+  // Translate the preset to a list of corresponding control messages.
+  p = if getref id FIRST_INIT then ignorep else ignorep2;
+  res = map unignore $ filter p $ zipwith ($)
+    [base, scale,
+     min_note, max_note,
+     min_vel, max_vel, vel_bias,
+     min_dur, max_dur, dur_bias,
+     quant_mode, delta, dur_vals,
+     min_shift, max_shift, shift_bias,
+     min_step, max_step, step_bias,
+     min_prob, max_prob, prob_bias,
+     max_notes, max_notes_bias,
+     ignore2 meter, ignore2 upbeat, ignore2 tempo, timebase, division,
+     pulses, step_mode, ignore2 metronome,
+     ostinato, period,
+     hrm, min_harm, max_harm, harm_bias,
+     pref, pref_bias, trace,
+     limit, unique, ignore hold, ignore2 mute,
+     pitch_tracker, vel_tracker,
+     arg1, arg2, arg3, arg4,
+     in_chan, out_chan,
+     ctl1, ctl2, ctl3, ctl4,
+     ctl5, ctl6, ctl7] data;
+  putref id FIRST_INIT false;
+end with
+  /* Quick hack to ignore some of the flags like hold and mute which are
+     stored in presets but not set when loading. */
+  unignore (ignore f x) = f x;
+  unignore (ignore2 f x) = f x;
+  unignore x = x otherwise;
+  ignorep (ignore _ _) = false;
   ignorep _ = true otherwise;
+  ignorep2 (ignore _ _) = false;
+  ignorep2 (ignore2 _ _) = false;
+  ignorep2 _ = true otherwise;
 end;
 
 read_preset id x::string =
-format_preset data +
+format_preset id data +
 // Add the preset file and name, so that these are set in the GUI.
 [preset_file x,preset_name y]
 when
@@ -783,7 +832,7 @@ get_preset id =
  getref id MIN_STEP, getref id MAX_STEP, getref id STEP_BIAS,
  getref id MIN_PROB, getref id MAX_PROB, getref id PROB_BIAS,
  getref id MAX_NOTES, getref id MAX_NOTES_BIAS,
- liststr (getref2 id METER NEXT_METER), getref id UPBEAT,
+ meterstr (getref2 id METER NEXT_METER), getref id UPBEAT,
  getref2 id TEMPO NEXT_TEMPO, getref2 id TIMEBASE NEXT_TIMEBASE,
  getref id DIVISION, liststr (getref id PULSES),
  getref id STEP_MODE, getref id METRONOME,
@@ -819,7 +868,7 @@ when path = split "/" x; root = head path; name = last path;
 end;
 
 // Send the current state of the preset as a list of control messages.
-query_preset id = format_preset $ get_preset id;
+query_preset id = format_preset id $ get_preset id;
 
 /* Pd interface. The creation argument is the id of the Raptor instance, which
    must be an integer. The inlet receives messages to set control parameters,
@@ -911,9 +960,10 @@ process (max_notes_bias x::double)
    pulse of the next bar. */
 
 process (meter x::string t)
-		= () if (case splitlist x of
+		= () if (case splitmeter x of
 		     	   x = putref id NEXT_METER x $$ true
-			     if listp x && all intp x && all (>0) x;
+			     if meterp x && all intp (get_meter x) &&
+			       all (>0) (get_meter x);
 			   _ = false;
 			 end);
 process (tempo x::double t)
@@ -1004,6 +1054,9 @@ process (ctl7 x::double)
 
 /* Preset management. */
 
+process init_preset
+		= () when putref id FIRST_INIT true end;
+
 process send_preset
 		= smatrix (map (1,) x)
 		  if listp x when x = query_preset id end;
@@ -1035,8 +1088,7 @@ process _	= () if stopped state;
 
 /* Generate notes for the next pulse. */
 
-process bang	= smatrix ((if k>0 then [(1,tick k)] else []) +
-			   map (1,) notes + [(0,dt)])
+process bang	= smatrix (tick_info + map (1,) notes + [(0,dt)])
 when
   w = next_weight state; k = next_metro state; t = last_tick state;
   filter_in_cache id t; filter_out_cache id t;
@@ -1044,6 +1096,8 @@ when
   dt = next_state id state;
   do (update_out_cache id t) notes;
   // printf "output cache: %s\n" $ str (getref id OUT_CACHE);
+  tick_info = if k>0 then [(1,tick k),(1,metronome (getref id METRONOME))]
+	      else [];
 end;
 
 /* Process incoming note messages. */

@@ -1,20 +1,20 @@
-#N canvas 369 168 718 436 12;
+#N canvas 520 227 718 509 12;
 #X declare -lib raptor;
 #X declare -lib raptor;
 #X declare -lib raptor;
 #N canvas 488 62 770 371 harm-sweep 0;
 #X obj 11 65 nbx 5 14 0 1 0 0 min-harm min-harm from 0 -8 0 12 -262144
--1 -1 0.04 256;
+-1 -1 0.04 256 0;
 #X obj 11 98 nbx 5 14 0 1 0 0 max-harm max-harm to 0 -8 0 12 -262144
--1 -1 0.12 256;
+-1 -1 0.12 256 0;
 #X obj 93 66 nbx 5 14 -1 1 0 0 min-pref min-pref from 0 -8 0 12 -262144
--1 -1 -0.8 256;
+-1 -1 -0.8 256 0;
 #X obj 93 99 nbx 5 14 -1 1 0 0 max-pref max-pref to 0 -8 0 12 -262144
--1 -1 0.8 256;
+-1 -1 0.8 256 0;
 #X obj 10 130 nbx 5 14 0 1e+37 0 0 harm-time harm-time sweep-time 0
--8 0 12 -262144 -1 -1 3 256;
+-8 0 12 -262144 -1 -1 3 256 0;
 #X obj 92 130 nbx 5 14 0 1e+37 0 0 pref-time pref-time sweep-time 0
--8 0 12 -262144 -1 -1 3 256;
+-8 0 12 -262144 -1 -1 3 256 0;
 #X obj 9 165 vradio 15 1 0 3 harm-sweep harm-sweep harm-sweep 0 -8
 0 12 -262144 -1 -1 2;
 #X text 30 195 stop;
@@ -25,9 +25,9 @@
 #X text 117 195 stop;
 #X text 118 163 up;
 #X text 117 180 down;
-#X floatatom 399 238 5 0 0 0 - - -;
+#X floatatom 399 238 5 0 0 0 - - -, f 5;
 #X msg 399 262 min-harm \$1;
-#X floatatom 577 238 5 0 0 0 - - -;
+#X floatatom 577 238 5 0 0 0 - - -, f 5;
 #X msg 577 262 pref \$1;
 #X msg 399 173 stop;
 #X msg 577 175 stop;
@@ -126,9 +126,9 @@
 #X text 196 180 down;
 #X obj 11 243 r both-sweep;
 #X obj 11 35 nbx 5 14 0 1 0 0 empty harm-display min-harm 0 -8 0 12
--262144 -1 -1 0.12 256;
+-262144 -1 -1 0.12 256 0;
 #X obj 93 36 nbx 5 14 -1 1 0 0 empty pref-display pref 0 -8 0 12 -262144
--1 -1 0.8 256;
+-1 -1 0.8 256 0;
 #X obj 436 318 s harm-display;
 #X obj 624 315 s pref-display;
 #X obj 11 268 s harm-sweep;
@@ -195,10 +195,10 @@
 #N canvas 68 206 346 241 harm-control 0;
 #X obj 39 204 outlet;
 #X obj 39 18 ctlin 1;
-#X floatatom 39 45 5 0 0 0 - - -;
+#X floatatom 39 45 5 0 0 0 - - -, f 5;
 #X obj 39 121 / 127;
 #X obj 39 146 expr $f1*($f3-$f2)+$f2;
-#X floatatom 39 174 5 0 0 0 - - -;
+#X floatatom 39 174 5 0 0 0 - - -, f 5;
 #X obj 114 94 r min-harm;
 #X obj 190 119 r max-harm;
 #X obj 39 69 swap 127;
@@ -216,10 +216,10 @@
 #X restore 453 235 pd harm-control;
 #N canvas 444 216 346 241 pref-control 0;
 #X obj 39 204 outlet;
-#X floatatom 39 45 5 0 0 0 - - -;
+#X floatatom 39 45 5 0 0 0 - - -, f 5;
 #X obj 39 121 / 127;
 #X obj 39 146 expr $f1*($f3-$f2)+$f2;
-#X floatatom 39 174 5 0 0 0 - - -;
+#X floatatom 39 174 5 0 0 0 - - -, f 5;
 #X obj 39 69 swap 127;
 #X obj 39 94 -;
 #X obj 114 94 r min-pref;
@@ -244,23 +244,23 @@ bias;
 #X msg 29 158 harm-bias \$1;
 #X obj 29 183 outlet;
 #X obj 29 35 ctlin 5;
-#X floatatom 29 60 5 0 0 0 - - -;
+#X floatatom 29 60 5 0 0 0 - - -, f 5;
 #X obj 29 82 - 64;
 #X obj 29 107 / 64;
-#X floatatom 29 132 5 0 0 0 - - -;
-#X floatatom 153 60 5 0 0 0 - - -;
+#X floatatom 29 132 5 0 0 0 - - -, f 5;
+#X floatatom 153 60 5 0 0 0 - - -, f 5;
 #X obj 153 82 - 64;
 #X obj 153 107 / 64;
-#X floatatom 153 132 5 0 0 0 - - -;
+#X floatatom 153 132 5 0 0 0 - - -, f 5;
 #X obj 153 35 ctlin 6;
 #X msg 153 158 pref-bias \$1;
-#X floatatom 268 60 5 0 0 0 - - -;
+#X floatatom 268 60 5 0 0 0 - - -, f 5;
 #X obj 268 82 - 64;
 #X obj 268 107 / 64;
-#X floatatom 268 132 5 0 0 0 - - -;
+#X floatatom 268 132 5 0 0 0 - - -, f 5;
 #X msg 268 158 max-notes-bias \$1;
-#X floatatom 430 59 5 0 0 0 - - -;
-#X floatatom 430 131 5 0 0 0 - - -;
+#X floatatom 430 59 5 0 0 0 - - -, f 5;
+#X floatatom 430 131 5 0 0 0 - - -, f 5;
 #X obj 430 106 int;
 #X msg 430 157 max-notes \$1;
 #X obj 430 81 / 21.33;
@@ -425,7 +425,7 @@ KP_Next KP_Right;
 #X obj 216 78 f;
 #X obj 144 77 r reload;
 #X obj 216 103 + 1;
-#X floatatom 216 153 5 0 0 0 - - -;
+#X floatatom 216 153 5 0 0 0 - - -, f 5;
 #X obj 216 -11 sel bang;
 #X msg 216 14 1;
 #X obj 216 39 t b f;
@@ -960,7 +960,7 @@ up.;
 #X obj 580 194 ctlin 27;
 #X obj 545 296 outlet;
 #X text 567 266 preset +/-;
-#X floatatom 520 75 5 0 0 0 - - -;
+#X floatatom 520 75 5 0 0 0 - - -, f 5;
 #X obj 520 99 s reload;
 #X obj 520 48 ctlin 16;
 #X text 367 20 prog change = preset (also cc #16);
@@ -968,7 +968,7 @@ up.;
 #X obj 87 329 pgmin;
 #X obj 87 354 - 1;
 #X obj 87 379 div 5;
-#X floatatom 87 430 5 0 0 0 - - -;
+#X floatatom 87 430 5 0 0 0 - - -, f 5;
 #X msg 185 384 \; upper mute 0 \; lower mute 0 \; lead mute 0;
 #X msg 205 460 \; upper mute 0 \; lower mute 0 \; lead mute 1;
 #X msg 305 384 \; upper mute 1 \; lower mute 0 \; lead mute 0;
@@ -1174,20 +1174,20 @@ up.;
 #X connect 114 6 81 0;
 #X coords 0 -1 1 1 240 40 1 0 0;
 #X restore 462 10 pd controls;
-#X text 203 388 F8: Switch presets;
-#X text 203 405 F9: Start/Stop;
-#X text 363 388 F5: Hold;
-#X text 203 371 F1 \, F2 \, F3: Mute;
-#X text 362 370 F4: Metronome;
+#X text 205 428 F8: Switch presets;
+#X text 205 445 F9: Start/Stop;
+#X text 365 428 F5: Hold;
+#X text 205 411 F1 \, F2 \, F3: Mute;
+#X text 364 410 F4: Metronome;
 #X obj 9 130 Raptor5 lower;
-#X text 322 405 Keypad: Harm. sweep;
-#X msg 475 300 disconnect;
-#X obj 475 325 oscbrowser 8000;
-#X msg 475 280 connect 255.255.255.255 9000;
-#X obj 12 401 raptor-preset;
+#X text 324 445 Keypad: Harm. sweep;
+#X msg 475 340 disconnect;
+#X obj 475 365 oscbrowser 8000;
+#X msg 475 320 connect 255.255.255.255 9000;
+#X obj 10 374 raptor-preset;
 #X obj 9 10 Raptor5 upper;
 #X obj 9 250 Raptor5 lead;
-#X obj 29 370 cnv 15 150 25 empty empty Raptor5-Demo 20 12 0 14 -233017
+#X obj 258 378 cnv 15 150 25 empty empty Raptor5-Demo 20 12 0 14 -233017
 -1 0;
 #X connect 9 0 10 0;
 #X connect 11 0 10 0;

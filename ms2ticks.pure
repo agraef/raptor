@@ -5,9 +5,10 @@
 public ms2ticks;
 
 namespace raptor;
-private getref DIVISION NPULSES TEMPO TIMEBASE;
+private getref DIVISION METER TEMPO TIMEBASE;
+private get_meter_base;
 
-::ms2ticks id x = getref id TEMPO*getref id NPULSES*getref id DIVISION/
-      getref id TIMEBASE/60000*x;
+::ms2ticks id x = getref id TEMPO*get_meter_base (getref id METER)*
+  getref id DIVISION/getref id TIMEBASE/60000*x;
 
 namespace;

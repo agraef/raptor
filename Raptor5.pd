@@ -1,49 +1,49 @@
-#N canvas 252 232 728 432 12;
+#N canvas 255 261 728 432 12;
 #X declare -lib raptor;
 #X obj 256 361 nbx 5 14 1 1e+37 0 0 \$0-tempo \$0-tempo BPM 0 -8 0
-12 -262144 -1 -1 80 256;
+12 -262144 -1 -1 80 256 0;
 #X obj 373 361 nbx 3 14 0 1e+37 0 0 \$0-metronome \$0-metronome Metronome
-0 -8 0 12 -262144 -1 -1 11 256;
+0 -8 0 12 -262144 -1 -1 11 256 0;
 #X obj 373 328 tgl 15 0 \$0-mute \$0-mute Mute 0 -8 0 12 -262144 -1
 -1 0 1;
 #X obj 419 328 tgl 15 0 \$0-hold \$0-hold Hold 0 -8 0 12 -262144 -1
 -1 0 1;
-#X symbolatom 256 328 14 0 0 2 Meter #0-meter-r #0-meter;
+#X symbolatom 256 328 14 0 0 2 Meter #0-meter-r #0-meter, f 14;
 #X obj 458 331 cnv 15 100 30 empty empty Raptor5 20 12 1 14 -262144
 -1 0;
 #X obj 274 389 bng 15 250 50 0 \$0-start \$0-start Start 17 7 0 12
 -225271 -1 -1;
 #X obj 332 389 bng 15 250 50 0 \$0-stop \$0-stop Stop 17 7 0 12 -261689
 -1 -1;
-#X symbolatom 4 389 12 0 0 0 - #0-preset-r #0-preset;
+#X symbolatom 4 389 12 0 0 0 - #0-preset-r #0-preset, f 12;
 #X obj 110 389 bng 15 250 50 0 \$0-load \$0-load Load 17 7 0 12 -262144
 -1 -1;
 #X obj 4 361 nbx 3 14 -1 16 0 0 \$0-in-chan \$0-in-chan In 0 -8 0 12
--262144 -1 -1 -1 256;
+-262144 -1 -1 -1 256 0;
 #X obj 51 361 nbx 3 14 -1 16 0 0 \$0-out-chan \$0-out-chan Out 0 -8
-0 12 -262144 -1 -1 1 256;
+0 12 -262144 -1 -1 1 256 0;
 #X obj 420 360 bng 15 50 50 0 \$0-blink \$0-blink empty 17 7 0 12 -262144
 -1 -1;
 #X obj 162 389 bng 15 250 50 0 \$0-save \$0-save Save 17 7 0 12 -262144
 -1 -1;
 #X obj 52 328 nbx 3 14 -1 128 0 0 \$0-ctl1 \$0-ctl1 Prog 0 -8 0 12
--262144 -1 -1 26 256;
+-262144 -1 -1 26 256 0;
 #X obj 99 328 nbx 3 14 -1 127 0 0 \$0-ctl2 \$0-ctl2 Vol 0 -8 0 12 -262144
--1 -1 89 256;
+-1 -1 89 256 0;
 #X obj 99 361 nbx 3 14 -1 127 0 0 \$0-ctl3 \$0-ctl3 Pan 0 -8 0 12 -262144
--1 -1 83 256;
+-1 -1 83 256 0;
 #X obj 147 328 nbx 3 14 -1 127 0 0 \$0-ctl4 \$0-ctl4 Reverb 0 -8 0
-12 -262144 -1 -1 10 256;
+12 -262144 -1 -1 10 256 0;
 #X obj 147 361 nbx 3 14 -1 127 0 0 \$0-ctl5 \$0-ctl5 Chorus 0 -8 0
-12 -262144 -1 -1 20 256;
+12 -262144 -1 -1 20 256 0;
 #X obj 201 328 nbx 3 14 -1 127 0 0 \$0-ctl6 \$0-ctl6 Attack 0 -8 0
-12 -262144 -1 -1 -1 256;
+12 -262144 -1 -1 -1 256 0;
 #X obj 201 361 nbx 3 14 -1 127 0 0 \$0-ctl7 \$0-ctl7 Filter 0 -8 0
-12 -262144 -1 -1 -1 256;
+12 -262144 -1 -1 -1 256 0;
 #X obj 385 389 bng 15 250 50 0 \$0-reset \$0-reset Reset 17 7 0 12
 -262131 -1 -1;
 #X obj 322 361 nbx 3 14 1 1e+37 0 0 \$0-timebase \$0-timebase Beats
-0 -8 0 12 -262144 -1 -1 4 256;
+0 -8 0 12 -262144 -1 -1 4 256 0;
 #X obj 212 389 bng 15 250 50 0 \$0-save-as \$0-save-as SaveAs 17 7
 0 12 -262144 -1 -1;
 #N canvas 510 142 507 348 meters 0;
@@ -293,13 +293,16 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X obj 265 493 tgl 15 0 empty \$0-ticks empty 17 7 0 10 -262144 -1
 -1 1 1;
 #X obj 354 266 ctlin 7;
-#X floatatom 354 291 5 0 0 0 - - -;
+#X floatatom 354 291 5 0 0 0 - - -, f 5;
 #X obj 354 315 s \$0-ctl2;
 #X text 312 243 vol is wired through;
 #X obj 25 459 route start stop reset tick ticks;
-#X obj 24 201 route load_preset save_preset send_preset;
 #X msg 213 226 send_preset;
 #X obj 213 251 s \$0-msg;
+#X obj 24 201 route load_preset save_preset send_preset init_preset
+;
+#X obj 259 305 s \$0-msg;
+#X msg 259 280 init_preset;
 #X connect 0 0 40 0;
 #X connect 2 0 1 0;
 #X connect 3 0 6 0;
@@ -334,7 +337,7 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X connect 40 2 34 0;
 #X connect 40 2 37 0;
 #X connect 40 3 39 0;
-#X connect 40 4 48 0;
+#X connect 40 4 50 0;
 #X connect 41 0 26 0;
 #X connect 42 0 41 1;
 #X connect 43 0 44 0;
@@ -345,11 +348,13 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X connect 47 3 41 0;
 #X connect 47 4 42 0;
 #X connect 47 5 11 0;
-#X connect 48 0 32 0;
-#X connect 48 1 33 0;
-#X connect 48 2 49 0;
-#X connect 48 3 16 0;
-#X connect 49 0 50 0;
+#X connect 48 0 49 0;
+#X connect 50 0 32 0;
+#X connect 50 1 33 0;
+#X connect 50 2 48 0;
+#X connect 50 3 52 0;
+#X connect 50 4 16 0;
+#X connect 52 0 51 0;
 #X restore 206 447 pd control-input;
 #N canvas 236 130 475 233 presets 0;
 #X obj 7 36 r \$0-load;
@@ -365,7 +370,7 @@ symbol \; \$1-dur-vals-r symbol \; \$1-preset-r symbol \; \$1-base
 #X connect 1 0 3 0;
 #X connect 2 0 0 0;
 #X restore 7 58 pd load-preset;
-#X symbolatom 154 111 20 0 0 0 - #0-preset-file -;
+#X symbolatom 154 111 20 0 0 0 - #0-preset-file -, f 20;
 #X obj 7 105 r \$0-save-as;
 #X obj 154 38 r \$0-save;
 #X obj 154 61 s \$0-preset-file;
@@ -1002,7 +1007,7 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 #X obj 27 30 tgl 15 0 \$0-ostinato \$0-ostinato Ostinato 17 7 0 10
 -262144 -1 -1 0 1;
 #X obj 109 31 nbx 3 14 0 999 0 0 \$0-period \$0-period empty 0 -8 0
-12 -262144 -1 -1 0 256;
+12 -262144 -1 -1 0 256 0;
 #X text 150 31 bars;
 #X restore 315 521 pd TODO;
 #X text 3 497 external notes outlet;
@@ -1012,9 +1017,9 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 #X obj 448 474 declare -lib raptor;
 #N canvas 156 99 663 308 \$1-controls 0;
 #X obj 124 39 nbx 3 14 0 1e+37 0 0 \$0-upbeat \$0-upbeat Upbeat 0 -8
-0 12 -262144 -1 -1 0 256;
+0 12 -262144 -1 -1 0 256 0;
 #X obj 240 39 nbx 5 14 1 192 0 0 \$0-division \$0-division Ticks/Pulse
-0 -8 0 12 -262144 -1 -1 48 256;
+0 -8 0 12 -262144 -1 -1 48 256 0;
 #X text 240 62 Step Mode;
 #X obj 242 83 vradio 15 1 0 5 \$0-step-mode \$0-step-mode empty 0 -8
 0 10 -262144 -1 -1 3;
@@ -1028,77 +1033,77 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 -1 -1 1;
 #X text 258 212 Barlow;
 #X obj 10 213 nbx 5 14 0 1 0 0 \$0-min-harm \$0-min-harm Min 0 -8 0
-12 -262144 -1 -1 0.11 256;
+12 -262144 -1 -1 0.11 256 0;
 #X obj 77 213 nbx 5 14 0 1 0 0 \$0-max-harm \$0-max-harm Max 0 -8 0
-12 -262144 -1 -1 1 256;
+12 -262144 -1 -1 1 256 0;
 #X obj 145 213 nbx 5 14 -1 1 0 0 \$0-harm-bias \$0-harm-bias Bias 0
--8 0 12 -262144 -1 -1 0 256;
+-8 0 12 -262144 -1 -1 0 256 0;
 #X obj 10 245 nbx 5 14 -1 1 0 0 \$0-pref \$0-pref Preference 0 -8 0
-12 -262144 -1 -1 0.8 256;
+12 -262144 -1 -1 0.8 256 0;
 #X obj 145 245 nbx 5 14 -1 1 0 0 \$0-pref-bias \$0-pref-bias Bias 0
--8 0 12 -262144 -1 -1 0 256;
+-8 0 12 -262144 -1 -1 0 256 0;
 #X obj 9 277 nbx 5 14 0 192 0 0 \$0-trace \$0-trace Trace 0 -8 0 12
--262144 -1 -1 24 256;
+-262144 -1 -1 24 256 0;
 #X text 74 275 ticks;
 #X text 442 20 Min;
 #X obj 443 39 nbx 5 14 0 127 0 0 \$0-min-note \$0-min-note empty 0
--8 0 12 -262144 -1 -1 45 256;
+-8 0 12 -262144 -1 -1 45 256 0;
 #X obj 514 39 nbx 5 14 0 127 0 0 \$0-max-note \$0-max-note empty 0
--8 0 12 -262144 -1 -1 69 256;
+-8 0 12 -262144 -1 -1 69 256 0;
 #X text 513 20 Max;
 #X text 583 20 Bias;
 #X text 349 38 Notes;
 #X obj 443 60 nbx 5 14 0 127 0 0 \$0-min-vel \$0-min-vel empty 0 -8
-0 12 -262144 -1 -1 106 256;
+0 12 -262144 -1 -1 106 256 0;
 #X obj 514 60 nbx 5 14 0 127 0 0 \$0-max-vel \$0-max-vel empty 0 -8
-0 12 -262144 -1 -1 120 256;
+0 12 -262144 -1 -1 120 256 0;
 #X obj 584 60 nbx 5 14 -1 1 0 0 \$0-vel-bias \$0-vel-bias empty 0 -8
-0 12 -262144 -1 -1 1 256;
+0 12 -262144 -1 -1 1 256 0;
 #X obj 443 82 nbx 5 14 0 192 0 0 \$0-min-dur \$0-min-dur empty 0 -8
-0 12 -262144 -1 -1 96 256;
+0 12 -262144 -1 -1 96 256 0;
 #X obj 514 82 nbx 5 14 0 192 0 0 \$0-max-dur \$0-max-dur empty 0 -8
-0 12 -262144 -1 -1 192 256;
+0 12 -262144 -1 -1 192 256 0;
 #X obj 584 82 nbx 5 14 -1 1 0 0 \$0-dur-bias \$0-dur-bias empty 0 -8
-0 12 -262144 -1 -1 0 256;
+0 12 -262144 -1 -1 0 256 0;
 #X obj 443 106 nbx 5 14 -96 96 0 0 \$0-min-shift \$0-min-shift empty
-0 -8 0 12 -262144 -1 -1 0 256;
+0 -8 0 12 -262144 -1 -1 0 256 0;
 #X obj 514 106 nbx 5 14 -96 96 0 0 \$0-max-shift \$0-max-shift empty
-0 -8 0 12 -262144 -1 -1 4 256;
+0 -8 0 12 -262144 -1 -1 4 256 0;
 #X obj 584 106 nbx 5 14 -1 1 0 0 \$0-shift-bias \$0-shift-bias empty
-0 -8 0 12 -262144 -1 -1 1 256;
+0 -8 0 12 -262144 -1 -1 1 256 0;
 #X obj 443 129 nbx 5 14 -127 127 0 0 \$0-min-step \$0-min-step empty
-0 -8 0 12 -262144 -1 -1 2 256;
+0 -8 0 12 -262144 -1 -1 2 256 0;
 #X obj 514 129 nbx 5 14 -127 127 0 0 \$0-max-step \$0-max-step empty
-0 -8 0 12 -262144 -1 -1 7 256;
+0 -8 0 12 -262144 -1 -1 7 256 0;
 #X obj 584 129 nbx 5 14 -1 1 0 0 \$0-step-bias \$0-step-bias empty
-0 -8 0 12 -262144 -1 -1 0 256;
+0 -8 0 12 -262144 -1 -1 0 256 0;
 #X obj 443 152 nbx 5 14 0 1 0 0 \$0-min-prob \$0-min-prob empty 0 -8
-0 12 -262144 -1 -1 0.9 256;
+0 12 -262144 -1 -1 0.9 256 0;
 #X obj 514 152 nbx 5 14 0 1 0 0 \$0-max-prob \$0-max-prob empty 0 -8
-0 12 -262144 -1 -1 1 256;
+0 12 -262144 -1 -1 1 256 0;
 #X obj 584 152 nbx 5 14 -1 1 0 0 \$0-prob-bias \$0-prob-bias empty
-0 -8 0 12 -262144 -1 -1 -1 256;
+0 -8 0 12 -262144 -1 -1 -1 256 0;
 #X obj 443 176 nbx 5 14 0 100 0 0 \$0-max-notes \$0-max-notes empty
-0 -8 0 12 -262144 -1 -1 1 256;
+0 -8 0 12 -262144 -1 -1 1 256 0;
 #X obj 584 176 nbx 5 14 -1 1 0 0 \$0-max-notes-bias \$0-max-notes-bias
-empty 0 -8 0 12 -262144 -1 -1 0 256;
+empty 0 -8 0 12 -262144 -1 -1 0 256 0;
 #X text 349 59 Velocity;
 #X text 349 81 Duration;
 #X text 349 105 Pulse Shift;
 #X text 349 128 Step Width;
 #X text 349 151 Probability;
 #X text 349 175 Density;
-#X symbolatom 9 37 13 0 0 0 - #0-pulses-r #0-pulses;
+#X symbolatom 9 37 13 0 0 0 - #0-pulses-r #0-pulses, f 13;
 #X text 8 20 Pulse Filter;
 #X text 349 199 Duration Quantizer;
 #X obj 350 222 vradio 15 1 0 2 \$0-quant-mode \$0-quant-mode empty
 0 -8 0 10 -262144 -1 -1 0;
 #X text 375 220 Delta;
 #X text 375 236 Values;
-#X symbolatom 444 240 14 0 0 0 - #0-dur-vals-r #0-dur-vals;
+#X symbolatom 444 240 14 0 0 0 - #0-dur-vals-r #0-dur-vals, f 14;
 #X obj 444 222 nbx 5 14 1 192 0 0 \$0-delta \$0-delta empty 0 -8 0
-12 -262144 -1 -1 24 256;
-#X symbolatom 445 272 14 0 0 2 - #0-scale-r #0-scale;
+12 -262144 -1 -1 24 256 0;
+#X symbolatom 445 272 14 0 0 2 - #0-scale-r #0-scale, f 14;
 #X obj 512 197 tgl 15 0 \$0-limit \$0-limit Limit 17 7 0 12 -262144
 -1 -1 0 1;
 #X obj 584 197 tgl 15 0 \$0-unique \$0-unique Unique 17 7 0 12 -262144
@@ -1117,16 +1122,16 @@ empty 0 -8 0 12 -262144 -1 -1 0 256;
 #X text 34 126 Bass;
 #X text 34 111 Treble;
 #X obj 349 273 nbx 5 14 0 127 0 0 \$0-base \$0-base Key 0 -8 0 12 -262144
--1 -1 0 256;
+-1 -1 0 256 0;
 #X text 120 62 Velocity Tracker;
 #X obj 12 147 nbx 3 14 -127 127 0 0 \$0-arg1 \$0-arg1 empty 0 -8 0
-12 -262144 -1 -1 -24 256;
+12 -262144 -1 -1 -24 256 0;
 #X obj 61 147 nbx 3 14 -127 127 0 0 \$0-arg2 \$0-arg2 empty 0 -8 0
-12 -262144 -1 -1 0 256;
+12 -262144 -1 -1 0 256 0;
 #X obj 120 147 nbx 3 14 -127 127 0 0 \$0-arg3 \$0-arg3 empty 0 -8 0
-12 -262144 -1 -1 0 256;
+12 -262144 -1 -1 0 256 0;
 #X obj 169 147 nbx 3 14 -127 127 0 0 \$0-arg4 \$0-arg4 empty 0 -8 0
-11 -262144 -1 -1 0 256;
+11 -262144 -1 -1 0 256 0;
 #X text 119 128 Min;
 #X text 154 128 Max Offset;
 #X text 169 36 pulses;

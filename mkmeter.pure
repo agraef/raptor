@@ -1,0 +1,14 @@
+
+/* Helper object to create a Pd symbol from a meter specified as a
+   numerator/denominator pair. */
+
+using system;
+
+// Optional third value denotes subdivisions of the meter (tuplets).
+#! --required mkmeter
+mkmeter [n::number,m::number]
+		= sprintf "%d/%d" (int n,int m);
+mkmeter [n::number,m::number,k::number]
+		= sprintf "%d-%d/%d" (int n,int k,int m) if k>1;
+		= sprintf "%d/%d" (int n,int m);
+mkmeter _	= () otherwise;
