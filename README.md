@@ -116,7 +116,7 @@ very fundamental limitation of Raptor's design, so don't expect this to change
 anytime soon. However, it is usually possible to work around this limitation
 by using shorter measures with the appropriate meter and tempo changes. (This
 can become difficult to control in real-time, though, so you'll want to use
-DAW as time master to automatize the meter and tempo changes in such cases.)
+a DAW as time master to automatize the meter and tempo changes in such cases.)
 
 ## Editing Presets
 
