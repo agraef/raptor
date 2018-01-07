@@ -82,16 +82,17 @@ the number of subdivisions of the meter's base pulse in order to play tuplets
 
 The meter is displayed in the symbol entry widget above the white strip of
 radio buttons, and can also be entered directly there. The format used by
-Raptor allows you to specify the meter using the customary n/m notation
-where n denotes the numerator (the number of base pulses making up a
-measure) and m the denominator of the meter. The latter is usually a power
-of 2, but Raptor allows you to use any positive integer there which is useful
-when tuplets are the base pulse of the meter. Moreover, the numerator n can
-also be specified in *stratified* form by explicitly listing the decomposition
-of the meter into different levels separated by dashes. E.g., 12/16 can also
-be specified as 4-3/16 or 2-2-3/16. Or you could write 6-2/16 or 2-3-2/16 to
-denote a 6/8 meter subdivided into 16th notes. Likewise, a 6/8 meter
-subdivided into triplets would be specified as 18/24, 6-3/24 or 2-3-3/24.
+Raptor allows you to specify the meter using the customary n/m notation where
+n denotes the numerator (the number of base pulses making up a measure) and m
+the denominator (unit of the base pulse) of the meter. The latter is usually a
+power of 2, but Raptor allows you to use any positive integer there which is
+useful when tuplets are the base pulse of the meter. Moreover, the numerator n
+can also be specified in *stratified* form by explicitly listing the
+decomposition of the meter into different levels separated by dashes. E.g.,
+12/16 can also be specified as 4-3/16 or 2-2-3/16. Or you could write 6-2/16
+or 2-3-2/16 to denote a 6/8 meter subdivided into 16th notes. Likewise, a 6/8
+meter subdivided into triplets would be specified as 18/24, 6-3/24 or
+2-3-3/24.
 
 The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
 stratified meter, Raptor does the stratification internally anyway, by
