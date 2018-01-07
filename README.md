@@ -308,9 +308,9 @@ value to zero in the presets that you use.
   needs to be replaced with a more generic system which allows switching
   between banks more easily (maybe also through a MIDI controller).
 
-- The meter and tempo controls in the raptor-preset subpatch need to be
-  documented. Also, a MIDI mapping for these controls should be added so that
-  it becomes easier to change these parameters on the fly.
+- A MIDI mapping for the meter and tempo controls in the raptor-preset subpatch
+  should be added so that it becomes easier to change these parameters on the
+  fly while playing.
 
 - Currently it's not possible to change tempo and timebase inside a measure.
   If Raptor is running and you change tempo, meter, division etc., it will
