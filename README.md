@@ -71,8 +71,8 @@ radio button as usual.
 The tempo (in BPM a.k.a. beats per minute) can be changed using the slider or
 the number entry widget in the bottom row of the subpatch. By default, in
 tempo calculations a "beat" is taken to mean a quarter note. The actual
-frequency of base pulses in the chosen meter is then $m/4$ times the BPM
-value, where $m$ is the denominator of the meter (see below).
+frequency of base pulses in the chosen meter is then m/4 times the BPM
+value, where m is the denominator of the meter (see below).
 
 The meter can be changed with the three strips of radio buttons in the middle
 of the subpatch. The *green* strip changes the numerator, the *red* strip the
@@ -82,11 +82,11 @@ the number of subdivisions of the meter's base pulse in order to play tuplets
 
 The meter is displayed in the symbol entry widget above the white strip of
 radio buttons, and can also be entered directly there. The format used by
-Raptor allows you to specify the meter using the customary $n/m$ notation
-where $n$ denotes the numerator (the number of base pulses making up a
-measure) and $m$ the denominator of the meter. The latter is usually a power
+Raptor allows you to specify the meter using the customary n/m notation
+where n denotes the numerator (the number of base pulses making up a
+measure) and m the denominator of the meter. The latter is usually a power
 of 2, but Raptor allows you to use any positive integer there which is useful
-when tuplets are the base pulse of the meter. Moreover, the numerator $n$ can
+when tuplets are the base pulse of the meter. Moreover, the numerator n can
 also be specified in *stratified* form by explicitly listing the decomposition
 of the meter into different levels separated by dashes. E.g., 12/16 can also
 be specified as 4-3/16 or 2-2-3/16. Or you could write 6-2/16 or 2-3-2/16 to
@@ -96,7 +96,7 @@ subdivided into triplets would be specified as 18/24, 6-3/24 or 2-3-3/24.
 The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
 stratified meter, Raptor does the stratification internally anyway, by
 decomposing the numerator into its prime factors in ascending order. Finally,
-if the denominator $m$ is omitted, Raptor chooses the power of 2 which is
+if the denominator m is omitted, Raptor chooses the power of 2 which is
 nearest to the numerator as a reasonable default, so that in most cases you
 can also just specify the (unstratified or stratified) numerator of the
 meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8, 12 becomes
