@@ -1,4 +1,4 @@
-#N canvas 326 128 641 715 12;
+#N canvas 338 59 641 784 12;
 #X msg 118 260 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/piano.raptor;
 #X obj 118 204 sel 0 1 2 3 4;
@@ -14,7 +14,7 @@ presets/bass.raptor \; lead load_preset presets/shred2.raptor;
 presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X symbolatom 12 90 8 0 0 1 - - -, f 8;
 #X obj 13 169 hsl 64 15 40 240 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 2520 1;
+-1 -1 1260 1;
 #X floatatom 88 166 5 0 0 1 - - -, f 5;
 #X obj 247 45 loadbang;
 #X obj 13 206 / 10;
@@ -99,6 +99,7 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X msg 386 105 set 4/4;
 #X obj 247 70 t b b b b;
 #X obj 725 114 t b a s b;
+#X obj 724 479 r raptor-div-set;
 #X connect 1 0 0 0;
 #X connect 1 1 4 0;
 #X connect 1 2 5 0;
@@ -180,4 +181,5 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X connect 88 1 7 0;
 #X connect 88 2 55 0;
 #X connect 88 3 61 0;
+#X connect 89 0 31 0;
 #X coords 0 -1 1 1 189 118 1 8 71;
