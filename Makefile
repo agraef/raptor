@@ -104,7 +104,7 @@ raptor$(PDEXT): raptor.o loader.o
 # This uses the Pure interpreter to compile our pd-pure objects to native code.
 # Note that the --main option is necessary to prevent name clashes and allow
 # the module to coexist with other modules of its kind.
-raptor.o: raptor.pure mksym.pure mkmeter.pure splitmeter.pure ms2ticks.pure ticks2ms.pure
+raptor.o: raptor.pure mksym.pure mkmeter.pure splitmeter.pure oscfilter.pure ms2ticks.pure ticks2ms.pure
 	pure $(PIC) -c $^ -o $@ --main=__raptor_main__
 
 # Compile a minimal loader module which is needed to interface to Pd and
