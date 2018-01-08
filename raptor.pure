@@ -793,7 +793,6 @@ format_preset id data = res when
      in_chan, out_chan,
      ctl1, ctl2, ctl3, ctl4,
      ctl5, ctl6, ctl7] data;
-  putref id FIRST_INIT false;
 end with
   /* Quick hack to ignore some of the flags like hold and mute which are
      stored in presets but not set when loading. */
@@ -1064,7 +1063,7 @@ process send_preset
 		= pd_error_s $ sprintf "raptor: error sending preset";
 
 process (load_preset x::string)
-		= smatrix (map (1,) x)
+		= putref id FIRST_INIT false $$ smatrix (map (1,) x)
 		  if listp x when x = read_preset id x end;
 process (load_preset x)
 		= pd_error_s $ sprintf "raptor: error reading %s" (str x);
