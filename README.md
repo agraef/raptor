@@ -76,28 +76,27 @@ value, where m is the denominator of the meter (see below).
 
 The meter can be changed with the three strips of radio buttons in the middle
 of the subpatch. The *green* strip changes the numerator, the *red* strip the
-denominator of the meter. In addition, the white strip allows you to change
-the number of subdivisions of the meter's base pulse, 1 meaning no
-subdivision, 2 subdividing the base pulse into 2 pulses, 3 subdivision into
-into 3 pulses, etc. In particular, the subdivisions lets you play tuplets by
-choosing a suitable denominator and the subdividing the base pulses
-accordingly. E.g., to play eighth tuplets, you'd choose 4 as the denominator
-in the red strip and then 3 in the white strip.
+denominator of the meter. In addition, the white strip allows you to choose a
+tuplet subdivision, 1 meaning no subdivision, 2 duplets, 3 triplets, etc., up
+to 7-tuplets. (This only calculates a rough approximation of tuplets which is
+expressible as a Raptor meter in the format discussed below, but it should
+yield the expected result in the most common cases. For complicated meters it
+is often easier to get what you want by adjusting tempo and meter directly,
+using the input format for meters discussed below.)
 
-The meter is displayed in the symbol entry widget above the white strip of
-radio buttons, and can also be entered directly there. The format used by
-Raptor allows you to specify the meter using the customary n/m notation where
-n denotes the numerator (the number of base pulses making up a measure) and m
-the denominator (unit of the base pulse) of the meter. The latter is usually a
-power of 2, but Raptor allows you to use any positive integer there which is
-useful when tuplets are the base pulse of the meter. Moreover, the numerator n
-can also be specified in *stratified* form by explicitly listing the
-decomposition of the meter into different levels separated by dashes. E.g.,
-12/16 can also be specified as 4-3/16 or 2-2-3/16. Or you could write 6-2/16
-or 2-3-2/16 to denote a 6/8 meter subdivided into 16th notes. Likewise, a 6/8
-meter subdivided into triplets would be specified as 18/24, 6-3/24 or
-2-3-3/24. (If this sounds complicated, just use the radio button strips
-instead, a suitable meter will then be figured out automatically.)
+The resulting meter is displayed in the symbol entry widget above the white
+strip of radio buttons, and can also be entered directly there. The format
+used by Raptor allows you to specify a meter using the customary n/m notation
+where n denotes the numerator (the number of base pulses making up a measure)
+and m the denominator (unit of the base pulse) of the meter. The latter is
+usually a power of 2, but Raptor allows you to use any positive integer there,
+which is useful when tuplets are the base pulse of the meter. Moreover, the
+numerator n can also be specified in *stratified* form by explicitly listing
+the decomposition of the meter into different levels separated by dashes.
+E.g., 12/16 can also be specified as 4-3/16 or 2-2-3/16. Or you could write
+6-2/16 or 2-3-2/16 to denote a 6/8 meter subdivided into 16th notes. Likewise,
+a 6/8 meter subdivided into triplets would be specified as 18/24, 6-3/24 or
+2-3-3/24.
 
 The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
 stratified meter, Raptor does the stratification internally anyway, by
@@ -111,7 +110,7 @@ meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8, 12 becomes
 Note that the raptor-preset patch always changes tempo and meter for all
 Raptor parts simultaneously. However, it is also possible to change meter and
 tempo (and even the definition of a "beat") by changing the corresponding
-values in each individual Raptor part. This complicates things, but makes it
+fields in each individual Raptor part. This complicates things, but makes it
 possible to produce polyrhythms in Raptor.
 
 Also note that in the present implementation changing tempo and meter only
@@ -140,7 +139,8 @@ In addition, each Raptor part also has "Mute" and "Hold" controls which are
 typically used in real-time in order to mute one part, and to make it continue
 playing without actual note input, respectively. The latter is typically
 controlled using a sustain pedal. The former can also be controlled using
-various MIDI controller switches and/or keyboard shortcuts (see below).
+various MIDI controllers and/or keyboard shortcuts (see "Keyboard Shortcuts"
+and "Switches" below).
 
 ## Transport and Sync
 

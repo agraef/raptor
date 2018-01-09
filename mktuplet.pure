@@ -1,0 +1,20 @@
+
+using math;
+
+#! --required mktuplet
+mktuplet [n,m,k] = [n,m,k] when
+  n = max 1 (int n); m = max 1 (int m); k = max 1 (int k);
+  // calculate the largest power l of 2 below or at k; the tuplet then divides
+  // l base pulses into k; XXXFIXME: this won't give the right meter if n
+  // isn't divisible by l, but as we don't support a fractional number of base
+  // pulses in a meter right now, there's not much we can do about that
+  l = int (2^(int (ln k/ln 2)));
+  // if k itself is a power of 2: poor man's duplet/quadruplet (note that this
+  // only does half the job, as we'd have to adjust the tempo as well)
+  n,m,l = if l==k && l>1 then max 1 (n div 3),m div l,1 else n,m,l;
+  // otherwise just divide by l and multiply the denominator by the subdivision
+  n = n div l; m = m div l * k;
+  // if the resulting meter is 1-k/m, just use k/m instead
+  n,m,k = if n>1 then n,m,k else k,m,1;
+end if all numberp [n,m,k] && n>=0 && m>=0 && k>=0;
+= [n,m,k] otherwise;
