@@ -1,9 +1,9 @@
-#N canvas 240 114 641 682 12;
+#N canvas 224 114 641 682 12;
 #X msg 118 260 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/piano.raptor;
-#X obj 118 204 sel 0 1 2 3 4;
+#X obj 118 233 sel 0 1 2 3 4;
 #X obj 118 73 hradio 15 1 0 5 reinit preset-no empty 0 -8 0 10 -191407
--1 -1 0;
+-1 -1 1;
 #X msg 118 497 \; upper load_preset presets/arp.raptor \; lower load_preset
 presets/bass.raptor \; lead load_preset presets/vibes.raptor;
 #X msg 118 339 \; upper load_preset presets/arp.raptor \; lower load_preset
@@ -14,7 +14,7 @@ presets/bass.raptor \; lead load_preset presets/shred2.raptor;
 presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X symbolatom 12 90 8 0 0 1 - - -, f 8;
 #X obj 13 169 hsl 64 15 40 240 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 2856 1;
+-1 -1 1260 1;
 #X floatatom 88 166 5 0 0 1 - - -, f 5;
 #X obj 247 45 loadbang;
 #X obj 13 206 / 10;
@@ -25,7 +25,7 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X obj 12 133 hradio 15 0 0 12 empty empty empty 0 -8 0 10 -64657 -1
 -1 2;
 #X obj 132 111 hradio 15 0 0 4 empty empty empty 0 -8 0 10 -258965
--1 -1 3;
+-1 -1 1;
 #X text 135 90 2;
 #X text 150 90 4;
 #X text 166 90 8;
@@ -40,7 +40,7 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X obj 552 410 symbol;
 #X floatatom 552 258 5 0 0 0 - - -, f 5;
 #X obj 12 111 hradio 15 0 0 7 empty empty empty 0 -8 0 10 -262144 -1
--1 6;
+-1 2;
 #X obj 565 76 + 1;
 #X obj 605 282 * 1;
 #X floatatom 565 101 5 0 0 0 - - -, f 5;
@@ -103,12 +103,16 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X obj 724 513 r raptor-tempo-set;
 #X obj 724 545 s raptor-tempo-get;
 #X msg 669 547 80;
+#X obj 118 209 t f b;
+#X obj 450 387 tgl 15 0 empty raptor-shift empty 17 7 0 10 -262144
+-1 -1 1 1;
+#X obj 399 384 spigot;
 #X connect 1 0 0 0;
 #X connect 1 1 4 0;
 #X connect 1 2 5 0;
 #X connect 1 3 3 0;
 #X connect 1 4 6 0;
-#X connect 2 0 1 0;
+#X connect 2 0 93 0;
 #X connect 7 0 51 0;
 #X connect 8 0 11 0;
 #X connect 9 0 50 0;
@@ -191,4 +195,8 @@ presets/bass.raptor \; lead load_preset presets/wave.raptor;
 #X connect 89 0 9 0;
 #X connect 90 0 8 0;
 #X connect 92 0 91 0;
+#X connect 93 0 1 0;
+#X connect 93 1 95 0;
+#X connect 94 0 95 1;
+#X connect 95 0 52 0;
 #X coords 0 -1 1 1 189 118 1 8 71;
