@@ -9,7 +9,7 @@ The Raptors.pd patch implements an experimental algorithmic composition
 arpeggiator program with 3 parts (i.e., 3 Raptor instances running in
 parallel, each with their own set of parameters). A few sample presets are
 included in the presets folder, and you can use the raptor-preset subpatch (in
-the lower right corner of the main patch) to switch between these. This
+the lower left corner of the main patch) to switch between these. This
 subpatch also has some controls to change meter and tempo.
 
 The patch accepts MIDI note input, as well as controller and system realtime
@@ -66,43 +66,50 @@ right corner of the subpatch) and then choose the preset you want to load by
 clicking on the corresponding radio button as usual.
 
 The remaining controls in the subpatch provide a way to set tempo and meter in
-a convenient fashion.
+a convenient fashion that will be familiar to musicians.
 
 The tempo (in BPM a.k.a. beats per minute) can be changed using the slider or
 the number entry widget in the bottom row of the subpatch. By default, in
 tempo calculations a "beat" is taken to mean a quarter note. The actual
-frequency of base pulses in the chosen meter is then m/4 times the BPM
+frequency of base pulses in the chosen meter then is m/4 times the BPM
 value, where m is the denominator of the meter (see below).
 
 The meter can be changed with the three strips of radio buttons in the middle
-of the subpatch. The *green* strip changes the numerator, the *red* strip the
-denominator of the meter. In addition, the white strip allows you to choose a
-tuplet subdivision, 1 meaning no subdivision, 2 duplets, 3 triplets, etc., up
-to 7-tuplets. (This only calculates a rough approximation of tuplets which is
-expressible as a Raptor meter in the format discussed below, but it should
-yield the expected result in the most common cases. For complicated meters it
-is often easier to get what you want by adjusting tempo and meter directly,
-using the input format for meters discussed below.)
+of the subpatch. The *green* strip changes the *numerator* (number of base
+pulses), the *red* strip the *denominator* (unit of the base pulses) and the
+*white* strip the *subdivision* of the meter (tuplets). The latter setting
+applies a heuristic which lets you play tuplets of the given kind (1
+indicating no subdivision, 2 duplets, 3 triplets, etc., up to 7-tuplets)
+without changing the basic meter and tempo.
 
-The resulting meter is displayed in the symbol entry widget above the white
-strip of radio buttons, and can also be entered directly there. The format
-used by Raptor allows you to specify a meter using the customary n/m notation
-where n denotes the numerator (the number of base pulses making up a measure)
-and m the denominator (unit of the base pulse) of the meter. The latter is
-usually a power of 2, but Raptor allows you to use any positive integer there,
-which is useful when tuplets are the base pulse of the meter. Moreover, the
-numerator n can also be specified in *stratified* form by explicitly listing
-the decomposition of the meter into different levels separated by dashes.
-E.g., 12/16 can also be specified as 4-3/16 or 2-2-3/16. Or you could write
-6-2/16 or 2-3-2/16 to denote a 6/8 meter subdivided into 16th notes. Likewise,
-a 6/8 meter subdivided into triplets would be specified as 18/24, 6-3/24 or
-2-3-3/24.
+NB: Raptor's tuplet heuristic isn't perfect and in some corner cases only
+calculates a rough approximation which is expressible as a Raptor meter in the
+format discussed below. It should yield the expected result in the most common
+cases, but for complicated meters it is often easier to get what you want by
+adjusting tempo and meter directly, using the input format for meters
+discussed below.
+
+In any case, the resulting meter is displayed in the symbol entry widget above
+the white strip of radio buttons. The symbol box can also be used to just
+directly enter the desired meter. The format used by Raptor allows you to
+specify a meter using the customary n/m notation where n denotes the numerator
+(the number of base pulses making up a measure) and m the denominator (unit of
+the base pulse) of the meter. The latter is usually a power of 2, but Raptor
+allows you to use any positive integer there, which is useful when tuplets are
+the base pulse of the meter. Moreover, the numerator n can also be specified
+in *stratified* form by explicitly listing the decomposition of the meter into
+different levels separated by dashes. E.g., 12/16 can also be specified as
+4-3/16 or 2-2-3/16. Or you could write 6-2/16 or 2-3-2/16 to denote a 6/8
+meter subdivided into 16th notes. Likewise, a 6/8 meter subdivided into
+triplets would be specified as 18/24, 6-3/24 or 2-3-3/24. Note that Raptor
+only supports integer (non-fractional) values in both the numerator and
+denominator right now.
 
 The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
 stratified meter, Raptor does the stratification internally anyway, by
 decomposing the numerator into its prime factors in ascending order. Finally,
 if the denominator m is omitted, Raptor chooses the power of 2 which is
-nearest to the numerator as a reasonable default, so that in most cases you
+closest to the numerator as a reasonable default, so that in most cases you
 can also just specify the (unstratified or stratified) numerator of the
 meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8, 12 becomes
 2-2-3/16, 2-3-2 becomes 2-3-2/16, etc.
@@ -113,13 +120,13 @@ tempo (and even the definition of a "beat") by changing the corresponding
 fields in each individual Raptor part. This complicates things, but makes it
 possible to produce polyrhythms in Raptor.
 
-Also note that in the present implementation changing tempo and meter only
-takes effect at measure boundaries, so at present it is *not* possible to
-change tempo and meter at some arbitrary point inside a measure. However, it
-is usually possible to work around this limitation by using shorter measures
-with the appropriate meter and tempo changes. (This can become difficult to
-control in real-time, though, so you'll want to use a DAW as time master to
-automatize the meter and tempo changes in such cases.)
+**Caveat:** One of Raptor's worst limitations right now is that changing tempo
+and meter only takes effect at measure boundaries, so it is *not* possible to
+change tempo and meter on the fly at some arbitrary point inside a measure.
+(It may be possible to work around this limitation by using shorter measures
+with the appropriate meter and tempo changes, but this can become difficult to
+control in real-time, so you'll want to use a DAW as time master to automatize
+the meter and tempo changes in such cases.)
 
 ## Editing Presets
 
@@ -377,6 +384,11 @@ one in the current implementation).
 
 ## Limitations/TODO
 
+Bug reports and comments/suggestions are always appreciated, please mail me at
+<aggraef@gmail.com>, submit an issue or drop me a pull request at Github.
+
+Here are some known issues and items on my wishlist:
+
 - The ostinato feature of Raptor 4 isn't implemented yet. Did this ever work?
   I don't remember. ;-)
 
@@ -386,28 +398,22 @@ one in the current implementation).
   between banks more easily (maybe also through a MIDI controller).
 
 - A MIDI mapping for the meter and tempo controls in the raptor-preset
-  subpatch should be added so that it becomes easier to change these
-  parameters on the fly while playing. (The TouchOSC layout has some controls
-  for these parameters on its third page, though.)
+  subpatch is in order. (The TouchOSC layout already has some controls for
+  these parameters on its third page, though.)
 
-- The MIDI mapping is somewhat idiosyncratic right now and matches the MIDI
-  controllers that I'm using, so you may have to edit this in the "midi-in"
-  subpatch inside the "controls" subpatch to adjust it to your liking, or use
-  some MIDI remapping software to make it work for the MIDI equipment that you
-  have. A MIDI learn capability would be nice to have in order to simplify
-  these kinds of adjustments.
+- The MIDI mapping is somewhat idiosyncratic and matches the MIDI controllers
+  that I'm using, so you may have to edit this in the "midi-in" subpatch
+  inside the "controls" subpatch. A MIDI learn capability would be nice to
+  have in order to simplify these kinds of adjustments.
 
 - SPP (song position pointer) and tempo sync through MIDI clock messages
   aren't supported right now. Use Jack transport instead if you need that kind
   functionality.
 
-- Currently it's not possible to change tempo and timebase inside a measure.
-  If Raptor is running and you change tempo, meter, division etc., it will
-  only take effect *after* the current measure. This also affects
-  tempo/timebase changes initiated by changing presets. Also, if you're
-  driving Raptor from a DAW, you'll have to make sure that tempo and meter
-  changes only take place at measure boundaries. (Even then, Raptor may
-  sometimes be off by a measure if it receives the tempo/meter information too
-  late. This is a real bug and won't be easy to fix until we redesign Raptor
-  so that it can pick up meter and tempo changes at arbitrary positions inside
-  a measure.)
+- Jack transport sync is half-broken right now because in Raptor tempo and
+  meter changes only take effect at measure boundaries. To make things worse,
+  even if you adhere to this in your DAW, Raptor may still be off by a measure
+  if it receives the tempo/meter information from Jack too late. This is a
+  real bug for which no easy solution exists until Raptor's inner loop is
+  redesigned so that it can pick up meter and tempo changes at arbitrary
+  positions inside a measure.
