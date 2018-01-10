@@ -709,7 +709,8 @@ stop_state id (s,p,t0,dt0,t1,dt1,n1,w1,k1) = put s true $$ ();
 next_state id (s,p,t0,dt0,t1,dt1,n1,w1,k1) = int $
 get t1+get dt1-get t0-get dt0
 when
-  if get n1+1 >= getref id NPULSES then update_meter id else ();
+  //if get n1+1 >= getref id NPULSES then update_meter id else ();
+  update_meter id;
   m = getref id NPULSES; n = (get n1+1) mod m;
   w = getref id INDISP!n; k = metronome_tick id m w;
   w = w/m;
