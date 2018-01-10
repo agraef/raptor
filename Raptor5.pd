@@ -1,13 +1,13 @@
-#N canvas 347 258 728 432 12;
+#N canvas 262 243 728 432 12;
 #X declare -lib raptor;
 #X obj 256 361 nbx 5 14 1 1e+37 0 0 \$0-tempo \$0-tempo BPM 0 -8 0
-12 -262144 -1 -1 120 256 0;
+12 -262144 -1 -1 80 256 0;
 #X obj 373 361 nbx 3 14 0 1e+37 0 0 \$0-metronome \$0-metronome Metronome
-0 -8 0 12 -262144 -1 -1 4 256 0;
-#X obj 373 328 tgl 15 0 \$0-mute \$0-mute Mute 0 -8 0 12 -262144 -1
--1 0 1;
-#X obj 419 328 tgl 15 0 \$0-hold \$0-hold Hold 0 -8 0 12 -262144 -1
--1 0 1;
+0 -8 0 12 -262144 -1 -1 11 256 0;
+#X obj 373 328 tgl 15 0 \$0-mute \$0-mute M 0 -8 0 12 -241096 -1 -1
+0 1;
+#X obj 397 328 tgl 15 0 \$0-hold \$0-hold H 0 -8 0 12 -64657 -1 -1
+0 1;
 #X symbolatom 256 328 14 0 0 2 Meter #0-meter-r #0-meter, f 14;
 #X obj 458 331 cnv 15 100 30 empty empty Raptor5 20 12 1 14 -262144
 -1 0;
@@ -725,13 +725,28 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 #X connect 21 1 22 0;
 #X connect 22 0 3 1;
 #X restore 15 107 pd midi-in;
-#X obj 92 138 s \$0-hold;
 #X obj 15 138 s \$0-msg;
+#X obj 92 138 pack f f;
+#X msg 92 163 \$2 \$1;
+#X obj 92 188 route 0 1;
+#X obj 92 213 s \$0-hold;
+#X obj 195 38 loadbang;
+#X text 198 91 0: cc64 = hold 1: cc64 = pause;
+#X obj 122 241 s \$0-pause;
+#X msg 195 63 0;
+#X obj 259 38 r hold-switch;
 #X connect 0 0 4 0;
 #X connect 1 0 4 1;
 #X connect 3 0 4 2;
-#X connect 4 0 6 0;
-#X connect 4 1 5 0;
+#X connect 4 0 5 0;
+#X connect 4 1 6 0;
+#X connect 6 0 7 0;
+#X connect 7 0 8 0;
+#X connect 8 0 9 0;
+#X connect 8 1 12 0;
+#X connect 10 0 13 0;
+#X connect 13 0 6 1;
+#X connect 14 0 6 1;
 #X restore 89 448 pd note-input;
 #N canvas 408 346 450 300 control-output 0;
 #X obj 25 62 r \$0-ctl1;
@@ -876,16 +891,16 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 #X connect 16 0 15 0;
 #X connect 17 0 18 0;
 #X restore 205 474 pd control-output;
-#N canvas 468 217 619 600 raptor 0;
+#N canvas 801 174 619 623 raptor 0;
 #X msg 187 76 start;
 #X msg 282 59 stop;
-#X obj 356 230 s \$0-pulse;
+#X obj 328 237 s \$0-pulse;
 #X obj 104 29 r \$0-msg;
 #X obj 210 332 unpack f f f;
 #X obj 12 29 r \$0-pulse;
 #X obj 187 29 r \$0-start;
 #X obj 282 29 r \$0-stop;
-#X obj 356 255 s \$0-blink;
+#X obj 328 262 s \$0-blink;
 #X obj 287 307 s \$0-msg-r;
 #X obj 210 282 route note;
 #X text 140 236 Note output;
@@ -1015,7 +1030,7 @@ MIDI clocks as zero notes \, must filter these out here ($f1>0)!;
 #X obj 315 425 -;
 #X obj 24 436 t b b b f;
 #X floatatom 315 450 5 0 0 0 - - -, f 5;
-#X obj 44 468 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 44 468 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 315 474 delay;
 #X obj 315 524 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
@@ -1045,6 +1060,12 @@ moses object above on slow computers;
 #X obj 56 285 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X obj 440 508 print \$0:flushed;
+#X obj 465 29 r \$0-pause;
+#X obj 465 54 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 357 204 t b b;
+#X msg 465 99 stop;
+#X obj 465 74 sel 1 0;
 #X connect 0 0 19 0;
 #X connect 1 0 19 0;
 #X connect 1 0 27 0;
@@ -1074,8 +1095,7 @@ moses object above on slow computers;
 #X connect 24 0 25 1;
 #X connect 25 0 19 0;
 #X connect 25 0 30 0;
-#X connect 27 0 2 0;
-#X connect 27 0 8 0;
+#X connect 27 0 63 0;
 #X connect 28 0 29 1;
 #X connect 28 1 19 0;
 #X connect 29 0 19 0;
@@ -1109,9 +1129,8 @@ moses object above on slow computers;
 #X connect 49 0 48 0;
 #X connect 49 1 48 1;
 #X connect 49 2 48 2;
-#X connect 50 0 2 0;
-#X connect 50 0 8 0;
 #X connect 50 0 45 0;
+#X connect 50 0 63 0;
 #X connect 50 1 51 0;
 #X connect 50 2 43 0;
 #X connect 51 0 49 0;
@@ -1125,6 +1144,13 @@ moses object above on slow computers;
 #X connect 56 0 31 1;
 #X connect 57 0 56 1;
 #X connect 59 0 56 0;
+#X connect 61 0 62 0;
+#X connect 62 0 65 0;
+#X connect 63 0 8 0;
+#X connect 63 1 2 0;
+#X connect 64 0 27 0;
+#X connect 65 0 64 0;
+#X connect 65 1 63 0;
 #X restore 4 448 pd raptor;
 #X obj 4 475 outlet;
 #N canvas 118 263 450 300 TODO 0;
@@ -1171,16 +1197,16 @@ moses object above on slow computers;
 #X text 74 275 ticks;
 #X text 442 20 Min;
 #X obj 443 39 nbx 5 14 0 127 0 0 \$0-min-note \$0-min-note empty 0
--8 0 12 -262144 -1 -1 43 256 0;
+-8 0 12 -262144 -1 -1 45 256 0;
 #X obj 514 39 nbx 5 14 0 127 0 0 \$0-max-note \$0-max-note empty 0
--8 0 12 -262144 -1 -1 67 256 0;
+-8 0 12 -262144 -1 -1 69 256 0;
 #X text 513 20 Max;
 #X text 583 20 Bias;
 #X text 349 38 Notes;
 #X obj 443 60 nbx 5 14 0 127 0 0 \$0-min-vel \$0-min-vel empty 0 -8
-0 12 -262144 -1 -1 1 256 0;
+0 12 -262144 -1 -1 106 256 0;
 #X obj 514 60 nbx 5 14 0 127 0 0 \$0-max-vel \$0-max-vel empty 0 -8
-0 12 -262144 -1 -1 37 256 0;
+0 12 -262144 -1 -1 120 256 0;
 #X obj 584 60 nbx 5 14 -1 1 0 0 \$0-vel-bias \$0-vel-bias empty 0 -8
 0 12 -262144 -1 -1 1 256 0;
 #X obj 443 82 nbx 5 14 0 192 0 0 \$0-min-dur \$0-min-dur empty 0 -8
@@ -1275,6 +1301,8 @@ empty 0 -8 0 12 -262144 -1 -1 0 256 0;
 #X text 476 355 (c) 2008-2016 by Albert Graef;
 #X obj 4 327 bng 15 250 50 0 \$1-edit \$1-edit Edit 17 7 0 12 -203904
 -1 -1;
+#X obj 421 328 tgl 15 0 \$0-pause \$0-pause P 0 -8 0 12 -258965 -1
+-1 0 1;
 #X connect 33 0 34 0;
 #X connect 38 0 28 0;
 #X connect 42 0 43 0;
