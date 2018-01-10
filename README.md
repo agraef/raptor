@@ -120,14 +120,6 @@ tempo (and even the definition of a "beat") by changing the corresponding
 fields in each individual Raptor part. This complicates things, but makes it
 possible to produce polyrhythms in Raptor.
 
-**Caveat:** One of Raptor's worst limitations right now is that changing tempo
-and meter only takes effect at measure boundaries, so it is *not* possible to
-change tempo and meter on the fly at some arbitrary point inside a measure.
-(It may be possible to work around this limitation by using shorter measures
-with the appropriate meter and tempo changes, but this can become difficult to
-control in real-time, so you'll want to use a DAW as time master to automatize
-the meter and tempo changes in such cases.)
-
 ## Editing Presets
 
 You can click the Edit button in each of the three Raptor parts to open the
@@ -409,11 +401,3 @@ Here are some known issues and items on my wishlist:
 - SPP (song position pointer) and tempo sync through MIDI clock messages
   aren't supported right now. Use Jack transport instead if you need that kind
   functionality.
-
-- Jack transport sync is half-broken right now because in Raptor tempo and
-  meter changes only take effect at measure boundaries. To make things worse,
-  even if you adhere to this in your DAW, Raptor may still be off by a measure
-  if it receives the tempo/meter information from Jack too late. This is a
-  real bug for which no easy solution exists until Raptor's inner loop is
-  redesigned so that it can pick up meter and tempo changes at arbitrary
-  positions inside a measure.
