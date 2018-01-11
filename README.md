@@ -84,10 +84,13 @@ without changing the basic meter and tempo.
 
 NB: Raptor's tuplet heuristic isn't perfect and in some corner cases only
 calculates a rough approximation which is expressible as a Raptor meter in the
-format discussed below. It should yield the expected result in the most common
-cases, but for complicated meters it is often easier to get what you want by
-adjusting tempo and meter directly, using the input format for meters
-discussed below.
+format discussed below. In particular, you should make sure that the tuplet's
+real length (which is 3 in the case of duplets and quadruplets, 2 in the case
+of triplets and 4 in the case of 5-, 6- and 7-tuplets) divides the number of
+base pulses, otherwise the numerator of the resulting meter will be rounded
+down to the nearest integer. For complicated meters it is often easier to get
+what you want by adjusting tempo and meter directly, using the input format
+for meters discussed below.
 
 In any case, the resulting meter is displayed in the symbol entry widget above
 the white strip of radio buttons. The symbol box can also be used to just
@@ -101,24 +104,28 @@ in *stratified* form by explicitly listing the decomposition of the meter into
 different levels separated by dashes. E.g., 12/16 can also be specified as
 4-3/16 or 2-2-3/16. Or you could write 6-2/16 or 2-3-2/16 to denote a 6/8
 meter subdivided into 16th notes. Likewise, a 6/8 meter subdivided into
-triplets would be specified as 18/24, 6-3/24 or 2-3-3/24. Note that Raptor
-only supports integer (non-fractional) values in both the numerator and
-denominator right now.
+triplets would be specified as 18/24, 6-3/24 or 2-3-3/24.
 
-The default meter is 4/4 (common time) a.k.a. 2-2/4. If you don't specify a
-stratified meter, Raptor does the stratification internally anyway, by
-decomposing the numerator into its prime factors in ascending order. Finally,
-if the denominator m is omitted, Raptor chooses the power of 2 which is
-closest to the numerator as a reasonable default, so that in most cases you
-can also just specify the (unstratified or stratified) numerator of the
-meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8, 12 becomes
-2-2-3/16, 2-3-2 becomes 2-3-2/16, etc.
+If you don't specify a stratified meter, Raptor does the stratification
+internally anyway, by decomposing the numerator into its prime factors in
+ascending order. Finally, if the denominator m is omitted, Raptor chooses the
+power of 2 which is closest to the numerator as a reasonable default, so that
+in most cases you can also just specify the (unstratified or stratified)
+numerator of the meter. E.g., 2 becomes 2/2, 3 becomes 3/4, 9 becomes 3-3/8,
+12 becomes 2-2-3/16, 2-3-2 becomes 2-3-2/16, etc.
 
-Note that the raptor-preset patch always changes tempo and meter for all
-Raptor parts simultaneously. However, it is also possible to change meter and
-tempo (and even the definition of a "beat") by changing the corresponding
-fields in each individual Raptor part. This complicates things, but makes it
-possible to produce polyrhythms in Raptor.
+One important limitation to keep in mind is that Raptor only supports integer
+(non-fractional) components in both the numerator and denominator of the meter
+right now. As already mentioned, this affects, in particular, the tuplet
+heuristic. The default meter shown initially in the raptor-preset patch is 4/4
+(common time) a.k.a. 2-2/4, but note that this may be overridden by the preset
+loaded at startup. The raptor-preset patch always changes tempo and meter for
+all Raptor parts simultaneously. However, it is also possible to change meter
+and tempo (and even the definition of a "beat") by changing the corresponding
+fields in each individual Raptor part. This makes things much more complicated
+and will only be needed in special situations; in particular, it allows you to
+configure polyrhythms in Raptor, which isn't possible possible with just the
+raptor-preset patch.
 
 ## Editing Presets
 
@@ -134,21 +141,39 @@ preset file. You can also use the SaveAs button if you want to save the
 settings in a new preset file instead, or use the Load button to load a
 different preset file.
 
-In addition, each Raptor part also has "Mute" and "Hold" controls which are
-typically used in real-time in order to mute one part, and to make it continue
-playing without actual note input, respectively. The latter is typically
-controlled using a sustain pedal. The former can also be controlled using
-various MIDI controllers and/or keyboard shortcuts (see "Keyboard Shortcuts"
-and "Switches" below).
+## Performance Controls
+
+In addition, each Raptor part also has a few special toggles visible in the
+main patch which are typically used in real-time during performance:
+
+- "Mute" (abbreviated "M") silences one part, i.e., it suppresses note output
+  from that part (but not the metronome clicks, see "Metronome" below).
+
+- "Hold" ("H") provides a kind of ostinato effect in which input notes are
+  kept indefinitely. Raptor will then loop playing the same notes and chords
+  at random until "Hold" is switched off again.
+
+- "Pause" ("P") pauses a part until it is switched off again, at which point
+  the part resumes with the next pulse it was about to play when paused.
+  Parameter changes such as meter and tempo are still registered and will take
+  effect when the part resumes. This is typically applied to all parts
+  simultaneously, but if your timing is exact enough, you can also use this
+  with individual parts to achieve some interesting polyrhythmic effects.
+
+Muting individual parts can also be done with the F1, F2 and F3 keys, and you
+can hold or pause all parts with the F5 and F6 keys, respectively. All these
+functions can also be controlled using various MIDI controllers. In
+particular, the sustain pedal is by default assigned to the "Hold" function,
+but can also be switched to "Pause" by pressing the F7 key (see "Keyboard
+Shortcuts", "Switches" and "Other Controllers" below).
 
 ## Transport and Sync
 
 The "controls" subpatch in the upper right corner of the main patch has
 "Start" and "Stop" buttons which let you start and stop Raptor manually.
 There's also a "Reset" button to reset all parts and have them reload their
-current presets, and a "Hold" toggle which controls the "Hold" parameter of
-all parts simultaneously (which comes in handy if you don't have a sustain
-pedal).
+current presets, as well as "Hold" and "Pause" toggles which control the
+corresponding switches of all parts simultaneously (see above).
 
 Raptor can also be started and stopped remotely by sending it the appropriate
 system realtime messages (see "Sequencer Messages" below). However, the most
@@ -171,9 +196,9 @@ The "harm-sweep" subpatch gives you direct access to various parameters
 controlling Raptor's note generation process. A discussion of these parameters
 is beyond the scope of this document, but in a nutshell, they are used to
 control the degree of harmonicity in the generated notes. If the (minimum)
-harmonicity is high, the generated notes and chords will be close to the
-chords you play on Raptor's MIDI input. Lowering the harmonicity gives the
-algorithm more freedom (for very low values you'll get complete atonality).
+harmonicity is high, the generated notes and chords will match the chords you
+play on Raptor's MIDI input. Lowering the harmonicity gives the algorithm more
+leeway (for very low values you'll get complete atonality).
 
 In addition, there's a preference parameter which controls how much Raptor
 will prefer notes with a high degree of harmonicity (this works best if the
@@ -195,10 +220,12 @@ bottom. All changes done in this subpatch apply only to the *active* part(s)
 Raptor provides some keyboard shortcuts (mostly function keys) to control the
 most important functions of the patch. Note that to make these work, the patch
 must have keyboard focus. F1, F2 and F3 will mute/unmute the corresponding
-part, F4 toggles the metronome clicks, F5 toggles the "Hold" control of all
-parts, F8 changes presets by cycling through them, and F9 starts and stops
-playback. Also, the cursor keys on the numeric keypad let you control the
-harmonicity sweep functions in the "harm-sweep" subpatch.
+part, F4 toggles the metronome clicks, F5 and F6 toggle the "Hold" and "Pause"
+controls of all parts, F7 switches the assignment of the sustain pedal (see
+"Other Controllers" below) between "Hold" and "Pause", F8 changes presets by
+cycling through them, and F9 starts and stops playback. Also, the cursor keys
+on the numeric keypad let you control the harmonicity sweep functions in the
+"harm-sweep" subpatch.
 
 ## Controller Assignments
 
@@ -232,7 +259,7 @@ on the Mac,or MidiOx on Windows).
 
 - CC20: Start/Stop
 - CC21: Metronome
-- CC22: Hold
+- CC22: Hold/Pause
 - CC23: Preset-
 - CC24: Mute 1
 - CC25: Mute 2
@@ -278,13 +305,13 @@ sets #0-#4. Note that all this assumes the FCB 1010 default setup which has PC
 - CC16 (0-4): Preset #0-#4 (alternative way to change presets, mainly useful
   for automation)
 
-- CC64: Hold (keeps note input until released, usually mapped to the hold
-  pedal)
+- CC64: Hold/Pause (sustain pedal)
 
 - CC80: Start/Stop (alternative way to control transport state, see below)
 
-Note that CC64 (hold) and CC80 (general purpose button #1) are interpreted
-using standard MIDI button semantics, so a value >=64 means "on", <64 "off".
+Note that CC64 (the sustain pedal) and CC80 (general purpose button #1) are
+interpreted using standard MIDI button semantics, so a value >=64 means "on",
+<64 "off".
 
 Also note that all these settings are just examples tailored to the external
 MIDI gear and software applications that I use; you can customize these to
@@ -308,15 +335,21 @@ If your DAW doesn't support MIDI clock sync then you can also start/stop
 Raptor explicitly through a special controller message (CC80, see above).
 Use a CC80 value >= 64 to start, <64 to stop Raptor.
 
+Note that in any case Raptor keeps its own internal time, so it only
+interprets system realtime messages controlling the transport state. Thus you
+have to make sure that the DAW starts out at the beginning of a measure and
+tempo/meter settings match up with Raptor (or use Jack transport with a DAW
+that emits real-time tempo and meter messages, such as Ardour).
+
 ## OSC Support
 
-Alternatively, Raptor can also be controlled through OSC (including parameter
-feedback). This is bidirectional, so Raptor will feed control data back to the
-connected OSC device(s). A corresponding TouchOSC layout is included
-(Raptors.touchosc). The main patch also includes an OSC browser subpatch
-which lets you detect and connect to OSC devices on the local network (either
-manually or through Zeroconf). Using Zeroconf, the Raptor patch is visible to
-OSC devices as "Raptor".
+In addition to MIDI, Raptor can also be controlled through OSC (including
+parameter feedback). This is bidirectional, so Raptor will feed control data
+back to the connected OSC device(s). A corresponding TouchOSC layout is
+included (Raptors.touchosc). The main patch also includes an OSC browser
+subpatch which lets you detect and connect to OSC devices on the local network
+(either manually or through Zeroconf). Using Zeroconf, the Raptor patch is
+visible to OSC devices as "Raptor".
 
 Raptor supports OSC natively (if you have the requisite mrpeach externals
 installed), so no MIDI bridge is needed. The Zeroconf support requires that
@@ -381,23 +414,36 @@ Bug reports and comments/suggestions are always appreciated, please mail me at
 
 Here are some known issues and items on my wishlist:
 
-- The ostinato feature of Raptor 4 isn't implemented yet. Did this ever work?
-  I don't remember. ;-)
-
-- At present you have to change the raptor-preset subpatch in the main Raptor
-  patch to switch between different "banks" (preset collections). This really
-  needs to be replaced with a more generic system which allows switching
-  between banks more easily (maybe also through a MIDI controller).
+- At present you have to edit the raptor-preset subpatch in the main Raptor
+  patch to change the definitions of the presets. This really needs to be
+  replaced with a more generic system which allows switching between different
+  "banks" of preset collections (maybe also through a MIDI controller).
 
 - A MIDI mapping for the meter and tempo controls in the raptor-preset
   subpatch is in order. (The TouchOSC layout already has some controls for
   these parameters on its third page, though.)
 
-- The MIDI mapping is somewhat idiosyncratic and matches the MIDI controllers
-  that I'm using, so you may have to edit this in the "midi-in" subpatch
-  inside the "controls" subpatch. A MIDI learn capability would be nice to
-  have in order to simplify these kinds of adjustments.
+- Raptor's MIDI mapping is somewhat idiosyncratic, as it matches the specific
+  MIDI gear that I often use (most notably the AKAI MPKmini2 and the FCB
+  1010), so you may have to edit this in the "midi-in" subpatch inside the
+  "controls" subpatch. A MIDI learn capability would be nice to have in order
+  to simplify these kinds of adjustments.
 
 - SPP (song position pointer) and tempo sync through MIDI clock messages
   aren't supported right now. Use Jack transport instead if you need that kind
-  functionality.
+  of functionality.
+
+- Raptor keeps its own internal time, so there's the potential of Raptor's and
+  your DAW's time drifting away from each other. Pd's internal timing is
+  rock-solid, however, so normally this shouldn't be an issue if Jack
+  transport is used and your DAW properly communicates tempo and meter changes
+  (Ardour does).
+
+- While Raptor should be stable enough for stage usage, there are some obscure
+  situations in which its timing still goes bonkers and/or the different parts
+  fall out of sync. In particular, it's usually *not* a good idea to use
+  "Reset" or high-frequency tempo/meter changes during a live performance.
+  Another recipe for disaster is to use "Pause" when Raptor is driven by Jack
+  transport, unless *you* can keep time very accurately. If you avoid these
+  pitfalls then you should (mostly) be safe from such mishaps. If all else
+  fails, stop and reset Raptor, take a deep breath, and start over. :)
