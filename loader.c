@@ -13,7 +13,7 @@
 #define LOADER_MAIN __raptor_main__
 #define LOADER_SETUP raptor_setup
 static const char *loader_name = "raptor";
-static const char *classes[] = {"raptor", "mksym", "mkmeter", "ms2ticks", "ticks2ms", NULL};
+static const char *classes[] = {"raptor", "mksym", "symchange", "mkmeter", "splitmeter", "mktuplet", "oscfilter", "ms2ticks", "ticks2ms", NULL};
 
 /* This is the main entry point in the batch-compiled Pure module. */
 extern void LOADER_MAIN(int argc, char** argv);

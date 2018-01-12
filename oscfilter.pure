@@ -1,0 +1,6 @@
+
+// Filter OSC messages by last path component.
+
+#! --required oscfilter
+oscfilter sel (x@_ y) = () if last (split "/" x) === sel;
+oscfilter sel x = x;

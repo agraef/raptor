@@ -1,0 +1,10 @@
+
+#! --required symchange
+symchange = process with
+  process x::string
+		= x when put old x end if get old ~= x;
+		= () otherwise;
+  process x	= symchange (str x);
+end when
+  old = ref "";
+end;

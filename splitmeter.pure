@@ -1,0 +1,17 @@
+
+/* Helper object to parse a Pd symbol representing a meter specification
+   (cf. mkmeter.pure). */
+
+using system;
+
+// Optional third value denotes subdivisions of the meter (tuplets).
+#! --required splitmeter
+splitmeter (symbol x::string) = splitmeter x;
+splitmeter x::string = case split "/" x of
+  [x,m] = case split "-" x of
+    [n,k] = [n,m,k] if intp n && intp k when n = val n; k = val k end;
+    [n] = [n,m,1] if intp n when n = val n end;
+    _ = ();
+  end if intp m when m = val m end;
+  _ = ();
+end;
